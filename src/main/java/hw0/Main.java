@@ -3,13 +3,9 @@ package hw0;
 import java.io.File;
 import java.io.IOException;
 
-import jdk.internal.org.xml.sax.SAXException;
-
-import org.apache.tika.exception.TikaException;
-
 public class Main {
-	public static void main(String[] args) throws IOException, SAXException,
-			TikaException {
+	public static void main(String[] args) throws IOException,
+			org.xml.sax.SAXException {
 
 		File directory = new File("C:/Users/ASPIRE/Desktop/test");
 		Crawler crawler = new Crawler();

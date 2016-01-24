@@ -9,13 +9,10 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 
-import jdk.internal.org.xml.sax.SAXException;
-
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 
 public class Crawler {
 	public Crawler() {
@@ -30,8 +27,7 @@ public class Crawler {
 
 	}
 
-	public void run(File directory) throws IOException, SAXException,
-			TikaException {
+	public void run(File directory) throws IOException {
 		for (final File file : directory.listFiles()) {
 			if (file.isDirectory()) {
 				run(file);
@@ -41,14 +37,15 @@ public class Crawler {
 		}
 	}
 
-	public void parse(File file) throws IOException, SAXException,
-			TikaException {
+	@SuppressWarnings("unchecked")
+	public void parse(File file) throws IOException {
 		AutoDetectParser parser = new AutoDetectParser();
 		BodyContentHandler handler = new BodyContentHandler();
 		Metadata metadata = new Metadata();
 		JSONObject json = new JSONObject();
-		json.append("filename", file.getName());
-		json.append("directory", file.getAbsolutePath());
+
+		json.put("filename", file.getName());
+		json.put("directory", file.getAbsolutePath());
 		// System.out.println(file.toString());
 
 		try (InputStream stream = new FileInputStream(file)) {
@@ -65,7 +62,7 @@ public class Crawler {
 			// json.append(name, metadata.get(name));
 			// System.out.println(name + ": " + metadata.get(name));
 			// }
-			json.append("content", handler.toString());
+			json.put("content", handler.toString());
 			System.out.print(".");
 		} catch (Exception e) {
 			e.printStackTrace();
