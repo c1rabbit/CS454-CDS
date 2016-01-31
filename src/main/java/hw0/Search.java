@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -30,7 +29,7 @@ public class Search {
 		}
 		String filepath = Paths.get(".").toAbsolutePath().normalize()
 				.toString()
-				+ "/src/data/db_record.txt";
+				+ "/data/db_record.txt";
 		// System.out.println(filepath);
 		JSONParser parser = new JSONParser();
 
@@ -39,6 +38,7 @@ public class Search {
 			for (String line; (line = br.readLine()) != null;) {
 				// System.out.println(line);
 				JSONObject jsonObject = (JSONObject) parser.parse(line);
+				// System.out.println(jsonObject.toJSONString());
 				search.search(jsonObject, term);
 
 				// System.out.println(filename.toString());
@@ -48,25 +48,23 @@ public class Search {
 			e.printStackTrace();
 		}
 
-		// JSONObject reader = new FileReader(File);
-
-		// JsonReader jsonReader = jsonObject.createReader(new
-		// StringReader("[]"));
-		// JsonArray array = jsonReader.readArray();
-		// jsonReader.close();
 	}
 
 	private void search(JSONObject json, String term) {
-		JSONArray content = (JSONArray) json.get("content");
+
+		String content = json.get("filename").toString()
+				+ json.get("content").toString();
+		// System.out.println(json);
+		// JSONArray content = (JSONArray) json.get("content");
 
 		// System.out.println("looking for: " + term);
 
 		if (Pattern.matches(".*" + term.toLowerCase().trim() + ".*", content
 				.toString().toLowerCase())) {
-			System.out
-					.println("Filename:\t" + (JSONArray) json.get("filename"));
+			System.out.println("Match!");
+			System.out.println("Filename:\t" + json.get("filename").toString());
 			System.out.println("Directory:\t"
-					+ (JSONArray) json.get("directory"));
+					+ json.get("directory").toString());
 			System.out.println();
 		}
 
