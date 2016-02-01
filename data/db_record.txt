@@ -1,9 +1,0 @@
-{"filename":"New Text Document1.txt","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\New Text Document1.txt","content":""}
-{"filename":"Lorem ipsum dolor sit amet.docx","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\Lorem ipsum dolor sit amet.docx","content":""}
-{"filename":"flyer_karate1.pdf","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\flyer_karate1.pdf","content":""}
-{"filename":"ballet.jpg","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\ballet.jpg","content":""}
-{"filename":"New Text Document.txt","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\New folder\\New Text Document.txt","content":""}
-{"filename":"New Text Document - Copy.txt","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\New folder\\New Text Document - Copy.txt","content":""}
-{"filename":"Lorem ipsum dolor sit amet.docx","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\New folder\\Lorem ipsum dolor sit amet.docx","content":""}
-{"filename":"flyer_karate.pdf","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\New folder\\flyer_karate.pdf","content":""}
-{"filename":"ballet.jpg","directory":"C:\\Users\\ASPIRE\\Desktop\\test\\New folder\\ballet.jpg","content":""}
