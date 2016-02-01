@@ -37,8 +37,12 @@ public class WebCrawler {
 			FileWriter fw = new FileWriter(db_path, false);
 			fw.close();
 		} catch (IOException e) {
+			File data = new File("data");
+			data.mkdir();
+			@SuppressWarnings("unused")
 			File newfile = new File(db_path);
-			e.printStackTrace();
+			// e.printStackTrace();
+			System.err.println("new directory and file created");
 		}
 
 		// PrintWriter pw = new PrintWriter(Paths.get(".").toAbsolutePath()
