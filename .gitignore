@@ -5,7 +5,7 @@
 .settings
 .project
 /src/data/
-/data/db_record.txt
+*db_record.txt
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
