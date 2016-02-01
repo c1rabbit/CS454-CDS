@@ -1,5 +1,6 @@
 package hw1;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -12,7 +13,6 @@ import java.util.Set;
 
 import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -37,6 +37,7 @@ public class WebCrawler {
 			FileWriter fw = new FileWriter(db_path, false);
 			fw.close();
 		} catch (IOException e) {
+			File newfile = new File(db_path);
 			e.printStackTrace();
 		}
 
@@ -47,14 +48,14 @@ public class WebCrawler {
 
 	}
 
-	@SuppressWarnings("finally")
 	public void run() {
 		WebPath uri = paths.get(0);
 		// breadth first search
 		while (!paths.isEmpty()) {
 			uri = paths.get(0);// reset pointer
 			Document doc = new Document("temp");
-			System.out.println(uri.getPath());
+			System.out.println("extracting:\t" + uri.getPath());
+
 			try {
 				doc = Jsoup.connect(uri.getPath()).get();
 				// save content
@@ -64,13 +65,14 @@ public class WebCrawler {
 				System.out.println(uri.getDepth() + " parsed:\t"
 						+ uri.getPath());
 				// queue links
-				if (uri.getDepth() <= depth) {
+				if (uri.getDepth() < depth) {
 
 					Elements links = doc.select("a");
 					for (Element l : links) {
 						if (!visited.contains(l.absUrl("href"))
 								&& !l.absUrl("href").isEmpty()) {
-							System.out.println("queued:\t" + l.absUrl("href"));
+							System.out.println((uri.getDepth() + 1)
+									+ " queued:\t" + l.absUrl("href"));
 							paths.add(new WebPath(l.absUrl("href"), uri
 									.getDepth() + 1));
 							visited.add(l.absUrl("href"));
@@ -78,8 +80,8 @@ public class WebCrawler {
 					}
 
 				}
-			} catch (IOException e) {
-				System.err.println("not a link");
+			} catch (Exception e) {
+				System.err.println("Not a link");
 
 			} finally {
 				paths.remove(0);
@@ -152,11 +154,12 @@ public class WebCrawler {
 
 	public static void main(String[] args) throws IOException,
 			URISyntaxException {
-		URI uri = new URI("http://calvinthanh.com");
-		depth = 3;
+		URI uri = new URI("http://localhost/sgdancestudio.com/");
+		depth = 2;
 		// File directory = new File("C:/Users/ASPIRE/Desktop/test");
 		WebCrawler crawler = new WebCrawler(uri);
 		crawler.run();
+		System.out.println("Finished Crawling");
 	}
 
 }

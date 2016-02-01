@@ -26,6 +26,7 @@ public class WebSearch {
 			for (String s : args) {
 				term += s + " ";
 			}
+			System.out.println("Search:\t" + term);
 		}
 		String filepath = Paths.get(".").toAbsolutePath().normalize()
 				.toString()
@@ -65,8 +66,8 @@ public class WebSearch {
 				.toString().toLowerCase())) {
 			// int index = json.get("content").toString().toLowerCase()
 			// .indexOf(term.toLowerCase().trim());
-			//System.out.println("Match!");
-			//System.out.println("URI:\t" + json.get("uri").toString());
+			// System.out.println("Match!");
+			// System.out.println("URI:\t" + json.get("uri").toString());
 			// System.out.println("Content:\t"
 			// + json.get("content")
 			// .toString()
@@ -75,9 +76,10 @@ public class WebSearch {
 			// Math.min(index + term.length() - 1,
 			// content.length() - 1)));
 			for (Object j : json.keySet()) {
-				System.out.println(j.toString() + ":\t" + json.get(j.toString()));
+				System.out.println(j.toString() + ":\t"
+						+ json.get(j.toString()));
 			}
-			//System.out.println("Content:\t" + json.get("content"));
+			// System.out.println("Content:\t" + json.get("content"));
 			System.out.println();
 		}
 
