@@ -4,7 +4,8 @@
 .build
 .settings
 .project
-db_record.txt
+db_record.json
+config.json
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
