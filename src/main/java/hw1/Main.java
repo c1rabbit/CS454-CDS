@@ -19,8 +19,8 @@ public class Main {
     Util util = new Util();
     String configLocation = "config.json";
     JSONObject config = util.jsonParser(configLocation);
-    URI uri = null;
-    int depth = 1;
+    URI uri = new URI("localhost");
+    int depth = 2;
     boolean extract = false;
     
     if (args.length == 0) { // if no parameter, read from config.json
