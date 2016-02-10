@@ -40,18 +40,19 @@ public class WebExtractor {
   }
 
   public void run() {
-    try {
-      while (paths.size() > 0) {
+    while (paths.size() > 0) {
+      try {
         WebPath uri = paths.get(0);
         Document doc = Jsoup.connect(uri.getPath()).get();
         // save content
         Element body = doc.body();
         parse(body);
         System.out.println(uri.getDepth() + " extracted:\t" + uri.getPath());
+      } catch (Exception e) {
+        System.err.println("Not a link");
+      } finally {
         paths.remove(0);
       }
-    } catch (Exception e) {
-      System.err.println("Not a link");
     }
   }
 
