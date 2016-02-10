@@ -39,7 +39,7 @@ public class WebCrawler {
     while (index < paths.size()) {
       uri = paths.get(0); // reset pointer
       Document doc = new Document("temp");
-      System.out.println("extracting:\t" + uri.getPath());
+      System.out.println("crawling:\t" + uri.getPath());
 
       try {
         doc = Jsoup.connect(uri.getPath()).get();

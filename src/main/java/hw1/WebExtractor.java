@@ -47,7 +47,7 @@ public class WebExtractor {
         // save content
         Element body = doc.body();
         parse(body);
-        System.out.println(uri.getDepth() + " parsed:\t" + uri.getPath());
+        System.out.println(uri.getDepth() + " extracted:\t" + uri.getPath());
         paths.remove(0);
       }
     } catch (Exception e) {
