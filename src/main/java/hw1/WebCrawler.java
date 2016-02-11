@@ -32,11 +32,11 @@ public class WebCrawler {
   }
 
   public void run() {
-    int index = 0;
+    //int index = 0;
     WebPath uri = paths.get(0);
     
     // breadth first search
-    while (index < paths.size()) {
+    while (!paths.isEmpty()) {
       uri = paths.get(0); // reset pointer
       Document doc = new Document("temp");
       System.out.println("crawling:\t" + uri.getPath());
@@ -56,13 +56,15 @@ public class WebCrawler {
               paths.add(new WebPath(l.absUrl("href"), uri.getDepth() + 1));
               visited.add(l.absUrl("href"));
             }
+            
           }
         }
       } catch (Exception e) {
         System.err.println("Not a link");
       } finally {
+    	paths.remove(0);
         visited.add(uri.getPath());
-        index++;
+    
       }
     }
   }

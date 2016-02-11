@@ -1,5 +1,6 @@
 {
-	"startingUrl": "http://di-shen.com/",
-	"dbPath": "C://svn//classes//2016winter//cs454//CS454-CDS//data//db_record.json",
-	"depth": "2"
+	"startingUrl": "http://localhost/",
+	"dbPath": "//data//db_record.json",
+	"depth": "2",
+	"extract": "true"
 }
