@@ -8,7 +8,11 @@
 
 package hw1;
 
+import java.io.FileOutputStream;
 import java.net.URI;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -24,11 +28,13 @@ public class WebCrawler {
   private int depth;
   private List<WebPath> paths;
   private Set<String> visited;
+  private String downloadPath;
   Util util = new Util();
 
-  public WebCrawler(URI uri, int depth, List<WebPath> paths) {
+  public WebCrawler(URI uri, int depth, List<WebPath> paths, String downloadPath) {
     this.depth = depth;
     this.paths = paths;
+    this.downloadPath = downloadPath;
     paths.add(new WebPath(uri.toString(), 0));
     System.out.println("Root URI:\t" + uri.toString());
     visited = new HashSet<>();
@@ -36,6 +42,8 @@ public class WebCrawler {
 
   public void run() {
     WebPath uri = paths.get(0);
+    String oldDomainName = "";
+    String dataFolder = "";
 
     // breadth first search
     while (!paths.isEmpty()) {
@@ -45,17 +53,35 @@ public class WebCrawler {
 
       try {
         doc = Jsoup.connect(uri.getPath()).get();
+        String newDomainName = util.domainStripper(uri.getPath());
+
+        // create a random folder in data folder
+        if (!newDomainName.equals(oldDomainName)) {
+          oldDomainName = newDomainName;
+          dataFolder = "./" + downloadPath + "/" + newDomainName;
+          util.createDir(dataFolder);
+        }
 
         // create a random html filename
         String randomName = util.randomString() + ".html";
         // create the html file with the filename
-        Files.write(Paths.get("./data/" + randomName), doc.html().getBytes());
+        Files.write(Paths.get(dataFolder + "/" + randomName), doc.html().getBytes());
         // set the "uri" attribute for the file just created
-        Files.setAttribute(Paths.get("./data/" + randomName), "user:uri", uri.getPath().getBytes());
+        Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "user:uri", uri.getPath()
+            .getBytes());
 
-        // !!!!!! This is how you read the attribute of the file !!!!!!
-        // repalce the part "Paths.get("./data/" + randomName)" with something like "Paths.get("[FILE_PATH]")"
-//        System.out.println(new String((byte[]) Files.getAttribute(Paths.get("./data/" + randomName), "user:uri")));
+        // download the OTHER stuff
+        Elements images = doc.select("img");
+        for (Element i : images) {
+          if (!i.absUrl("src").isEmpty()) {
+            URL website = new URL(i.absUrl("src"));
+            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            FileOutputStream fos =
+                new FileOutputStream(dataFolder + "/" + util.filenameStripper(i.absUrl("src")));
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            fos.close();
+          }
+        }
 
         // queue links
         if (uri.getDepth() < depth) {

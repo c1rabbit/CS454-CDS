@@ -43,15 +43,39 @@ public class Util {
     return saltStr;
   }
 
-  // delete and recreate data download folder
-  public void dataFolderReset(String path) {
+  // delete folder
+  public boolean deleteDir(File dir) {
+    if (dir.isDirectory()) {
+      String[] children = dir.list();
+      for (int i = 0; i < children.length; i++) {
+        boolean success = deleteDir(new File(dir, children[i]));
+        if (!success) {
+          return false;
+        }
+      }
+    }
+    return dir.delete();
+  }
+
+  // create folder
+  public void createDir(String path) {
     try {
       File data = new File(path);
-      data.delete();
       data.mkdir();
-      System.out.println("Download folder created!");
+      System.out.println("Folder created!");
     } catch (Exception e) {
-      System.err.println("Folder not found!");
+      System.err.println("Failed to create folder!");
     }
+  }
+
+  // domain name stripper
+  public String domainStripper(String uri) {
+    return uri.split("/")[2];
+  }
+
+  // filename stripper
+  public String filenameStripper(String uri) {
+    String[] output = uri.split("/");
+    return output[output.length - 1];
   }
 }
