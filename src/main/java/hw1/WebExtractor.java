@@ -43,11 +43,16 @@ public class WebExtractor {
   private MongoClient mongoClient;
   private DB db;
   private DBCollection collection;
+  private static boolean dump;
+  private static FileWriter fw;
 
-  public static void main(String[] args) throws UnknownHostException {
+  public static void main(String[] args) throws IOException {
     System.out.println("Extracter Starting from JAR..");
-    WebExtractor extractor = new WebExtractor();
 
+    WebExtractor extractor = new WebExtractor();
+    dump = true;
+    String path = "dump.json";
+    fw = new FileWriter(path);
     extractor.run();
   }
 
@@ -68,15 +73,15 @@ public class WebExtractor {
 
   }
 
-  public void run() {
-
+  public void run() throws IOException {
     visit(dir, tika);
-
     mongoClient.close();
+    fw.close();
+    System.out.println("Done.");
+    
   }
 
   public void visit(File file, Tika tika) {
-
 
     if (file.isDirectory()) {
       String[] children = file.list();
@@ -86,52 +91,64 @@ public class WebExtractor {
     } else if (file.isFile()) {
 
       try {
-        
+
         Parser parser = new AutoDetectParser();
         BodyContentHandler handler = new BodyContentHandler();
         Metadata metadata = new Metadata();
         FileInputStream inputstream = new FileInputStream(file);
         ParseContext context = new ParseContext();
-
         parser.parse(inputstream, handler, metadata, context);
-        
+
         // mongodb document object
         DBObject webpage = new BasicDBObject();
-        
+
         // getting the list of all meta data elements
         String[] metadataNames = metadata.names();
-        
+
         for (String name : metadataNames) {
           webpage.put(name, metadata.get(name));
         }
 
-        String uri = new String(
-          (byte[]) Files.getAttribute(Paths.get("./data/" + file.getName()), "user:uri"));
+        String uri = new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
         webpage.put("uri", uri);
+        System.out.println("extracting uri: " + uri + " from file: " + file.getPath());
 
-        
         webpage.put("filepath", file.getPath());
-        webpage.put("size_in_kb", file.length()/1024);
-
+        webpage.put("size_in_kb", file.length() / 1024);
         String content = tika.parseToString(file);
         webpage.put("content", content);
-
         collection.insert(webpage);
 
-        System.out.println("uri: " + uri);
         System.out.println();
 
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        if (dump) {
+          writeFile(webpage);
+        }
 
+      } catch (IOException e) {
+        e.printStackTrace();
       } catch (TikaException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       } catch (SAXException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
+    }
+  }
+
+  private void writeFile(DBObject doc) {
+    JSONObject json = new JSONObject();
+    
+    for (String s: doc.keySet()){
+      json.put(s, doc.get(s));
+    }
+        
+    try {
+      fw.write(json.toJSONString() + "\n");
+      fw.flush();
+      
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 }
