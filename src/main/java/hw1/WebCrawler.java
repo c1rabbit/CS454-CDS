@@ -9,6 +9,8 @@
 package hw1;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +24,7 @@ public class WebCrawler {
   private int depth;
   private List<WebPath> paths;
   private Set<String> visited;
+  Util util = new Util();
 
   public WebCrawler(URI uri, int depth, List<WebPath> paths) {
     this.depth = depth;
@@ -32,9 +35,8 @@ public class WebCrawler {
   }
 
   public void run() {
-    //int index = 0;
     WebPath uri = paths.get(0);
-    
+
     // breadth first search
     while (!paths.isEmpty()) {
       uri = paths.get(0); // reset pointer
@@ -43,6 +45,17 @@ public class WebCrawler {
 
       try {
         doc = Jsoup.connect(uri.getPath()).get();
+
+        // create a random html filename
+        String randomName = util.randomString() + ".html";
+        // create the html file with the filename
+        Files.write(Paths.get("./data/" + randomName), doc.html().getBytes());
+        // set the "uri" attribute for the file just created
+        Files.setAttribute(Paths.get("./data/" + randomName), "user:uri", uri.getPath().getBytes());
+
+        // !!!!!! This is how you read the attribute of the file !!!!!!
+        // repalce the part "Paths.get("./data/" + randomName)" with something like "Paths.get("[FILE_PATH]")"
+//        System.out.println(new String((byte[]) Files.getAttribute(Paths.get("./data/" + randomName), "user:uri")));
 
         // queue links
         if (uri.getDepth() < depth) {
@@ -56,15 +69,13 @@ public class WebCrawler {
               paths.add(new WebPath(l.absUrl("href"), uri.getDepth() + 1));
               visited.add(l.absUrl("href"));
             }
-            
           }
         }
       } catch (Exception e) {
         System.err.println("Not a link");
       } finally {
-    	paths.remove(0);
+        paths.remove(0);
         visited.add(uri.getPath());
-    
       }
     }
   }

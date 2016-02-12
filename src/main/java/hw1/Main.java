@@ -22,6 +22,7 @@ public class Main {
     URI uri = new URI("localhost");
     int depth = 2;
     boolean extract = false;
+    String downloadPath = "data";
     
     if (args.length == 0) { // if no parameter, read from config.json
       uri = new URI((String) config.get("startingUrl"));
@@ -47,14 +48,19 @@ public class Main {
       }
     }
     
+    // creating URI queue for crawling
     String dbPath = (String) config.get("dbPath");
     LinkedList<WebPath> paths = new LinkedList<>();
 
+    // run crawler
+    util.dataFolderReset(downloadPath);
     WebCrawler crawler = new WebCrawler(uri, depth, paths);
     crawler.run();
     System.out.println("Finished Crawling");
-    WebExtractor extractor = new WebExtractor(dbPath, paths);
+    
+    // run extractor if desired
     if (extract) {
+      WebExtractor extractor = new WebExtractor();
       extractor.run();
       System.out.println("Finished Extracting");
     }
