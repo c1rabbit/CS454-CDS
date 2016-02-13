@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import org.json.simple.JSONObject;
 
 public class Main {
-  public static void main(String[] args) throws IOException, URISyntaxException {
+	public static void main(String[] args) throws IOException, URISyntaxException {
     Util util = new Util();
     String configLocation = "config.json";
     JSONObject config = util.jsonParser(configLocation);
@@ -26,11 +26,20 @@ public class Main {
     String downloadPath = "./data";
 
     if (args.length == 0) { // if no parameter, read from config.json
+    	try{
       uri = new URI((String) config.get("startingUrl"));
       depth = Integer.parseInt((String) config.get("depth"));
       String temp = (String) config.get("extract");
       if (temp.equals("true"))
         extract = true;
+    	}
+    	catch(Exception e){
+    		System.out.println("Please include parameter"); 
+    		System.out.println("\t-d\tdepth");
+    		System.out.println("\t-u\turl");
+    	}finally{
+    		System.exit(1);
+    	}
     } else { // if there are parameters, read from parameters
       for (int i = 0; i < args.length; i++) {
         if (args[i].equals("-d")) {
@@ -70,7 +79,7 @@ public class Main {
     }
   }
 
-  private static boolean isNum(String s) {
-    return s.matches("[-+]?\\d*\\.?\\d+");
-  }
+	private static boolean isNum(String s) {
+		return s.matches("[-+]?\\d*\\.?\\d+");
+	}
 }
