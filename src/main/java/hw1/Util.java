@@ -78,8 +78,7 @@ public class Util {
     String[] output = uri.split("/");
     return output[output.length - 1];
   }
-<<<<<<< HEAD
+ 
+
 }
-=======
-}
->>>>>>> 930b559b9e6b9572607533949bde6618c8ea31ec
+
