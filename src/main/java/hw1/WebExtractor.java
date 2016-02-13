@@ -47,6 +47,19 @@ public class WebExtractor {
   private DB db;
   private DBCollection collection;
   
+  /*
+  //for testing purpose
+  public static void main(String[] args) throws UnknownHostException{
+    WebExtractor extractor = new WebExtractor();
+    try {
+      extractor.run();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+  */
+  
   public WebExtractor() throws UnknownHostException {
 
     this.path = Paths.get(".").toAbsolutePath().normalize().toString() + "/data";
@@ -81,7 +94,7 @@ public class WebExtractor {
     } else if (file.isFile()) {
 
       try {
-        //String filetype = tika.detect(file);
+        String filetype = tika.detect(file);
 
         Parser parser = new AutoDetectParser();
         BodyContentHandler handler = new BodyContentHandler();
@@ -100,11 +113,13 @@ public class WebExtractor {
         for (String name : metadataNames) {
           webpage.put(name, metadata.get(name));
         }
-
-        String uri = new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
+        
+        String uri = "";
+        uri = (filetype.contains("image")) ? file.getParentFile().getName() : new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
+        
         webpage.put("uri", uri);
         System.out.println("extracting uri: " + uri + " from file: " + file.getPath());
-
+        
         webpage.put("filepath", file.getPath());
         webpage.put("size_in_kb", file.length() / 1024);
         String content = tika.parseToString(file);
