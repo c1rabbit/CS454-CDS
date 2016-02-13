@@ -8,72 +8,136 @@
 package hw1;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
+import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+
+import org.apache.tika.sax.BodyContentHandler;
 import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.xml.sax.SAXException;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 
 public class WebExtractor {
-  private String dbPath;
-  private LinkedList<WebPath> paths;
-
-  public WebExtractor(String dbPath, LinkedList<WebPath> paths) {
-    this.dbPath = dbPath;
-    this.paths = paths;
-
-    // initializes data file
+  private String path;
+  private File dir;
+  private Tika tika;
+  private MongoClient mongoClient;
+  private DB db;
+  private DBCollection collection;
+  
+  /*
+  //for testing purpose
+  public static void main(String[] args) throws UnknownHostException{
+    WebExtractor extractor = new WebExtractor();
     try {
-      FileWriter fw = new FileWriter(dbPath, false);
-      fw.close();
+      extractor.run();
     } catch (IOException e) {
-      File data = new File("data");
-      data.mkdir();
-      @SuppressWarnings("unused")
-      File newfile = new File(dbPath);
-      // e.printStackTrace();
-      System.err.println("new directory and file created");
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
+  */
+  
+  public WebExtractor() throws UnknownHostException {
 
-  public void run() {
-    while (paths.size() > 0) {
-      try {
-        WebPath uri = paths.get(0);
-        Document doc = Jsoup.connect(uri.getPath()).get();
-        // save content
-        Element body = doc.body();
-        parse(body);
-        System.out.println(uri.getDepth() + " extracted:\t" + uri.getPath());
-      } catch (Exception e) {
-        System.err.println("Not a link");
-      } finally {
-        paths.remove(0);
+    this.path = Paths.get(".").toAbsolutePath().normalize().toString() + "/data";
+    this.dir = new File(path);
+    this.tika = new Tika();
+    
+    String configLocation = "config.json";
+    Util util = new Util();
+    JSONObject config = util.jsonParser(configLocation);
+    mongoClient = new MongoClient(new MongoClientURI((String) config.get("mongoURL")));
+    db = mongoClient.getDB((String) config.get("database"));
+    collection = db.getCollection((String) config.get("collection"));
+    
+    // drop collection to start fresh
+    collection.drop();
+
+  }
+
+  public void run() throws IOException {
+    System.out.println("Start Extracting..");
+    visit(dir);
+    mongoClient.close();    
+  }
+
+  public void visit(File file) {
+
+    if (file.isDirectory()) {
+      String[] children = file.list();
+      for (int i = 0; i < children.length; i++) {
+        visit(new File(file, children[i]));
       }
+    } else if (file.isFile()) {
+
+      try {
+        String filetype = tika.detect(file);
+
+        Parser parser = new AutoDetectParser();
+        BodyContentHandler handler = new BodyContentHandler();
+        Metadata metadata = new Metadata();
+        FileInputStream inputstream = new FileInputStream(file);
+        ParseContext context = new ParseContext();
+        
+        parser.parse(inputstream, handler, metadata, context);
+        
+        // mongodb document object
+        DBObject webpage = new BasicDBObject();
+
+        // getting the list of all meta data elements
+        String[] metadataNames = metadata.names();
+
+        for (String name : metadataNames) {
+          webpage.put(name, metadata.get(name));
+        }
+        
+        String uri = "";
+        uri = (filetype.contains("image")) ? file.getParentFile().getName() : new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
+        
+        webpage.put("uri", uri);
+        System.out.println("extracting uri: " + uri + " from file: " + file.getPath());
+        
+        webpage.put("filepath", file.getPath());
+        webpage.put("size_in_kb", file.length() / 1024);
+        String content = tika.parseToString(file);
+        webpage.put("content", content);
+        collection.insert(webpage);
+
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      
+      catch (TikaException e) {
+        e.printStackTrace();
+      } catch (SAXException e) {
+        e.printStackTrace();
+      } 
     }
   }
 
-  // creates JSON object for each crawled document
-  @SuppressWarnings("unchecked")
-  private void parse(Element content) throws IOException {
-    JSONObject json = new JSONObject();
-
-    json.put("uri", content.baseUri());
-    json.put("content", content.text());
-    writeJSON(json);
-  }
-
-  private void writeJSON(JSONObject json) {
-    try {
-      FileWriter fw = new FileWriter(dbPath, true); // the true will
-      // append the new data
-      fw.write(json.toString() + "\n");// appends the string to the file
-      fw.close();
-    } catch (IOException ioe) {
-      System.err.println("IOException: " + ioe.getMessage());
-    }
-  }
+ 
+  
 }
