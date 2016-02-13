@@ -31,6 +31,7 @@ public class Util {
   }
 
   // generate random 20 char string (html filenames)
+  // source: http://stackoverflow.com/questions/20536566/creating-a-random-string-with-a-z-and-0-9-in-java
   public String randomString() {
     String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     StringBuilder salt = new StringBuilder();
@@ -44,6 +45,7 @@ public class Util {
   }
 
   // delete folder
+  // source: http://www.tutorialspoint.com/javaexamples/dir_delete.htm
   public boolean deleteDir(File dir) {
     if (dir.isDirectory()) {
       String[] children = dir.list();
