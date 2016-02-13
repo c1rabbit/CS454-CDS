@@ -1,5 +1,5 @@
 {
-	"startingUrl": "http://localhost/",
+	"startingUrl": "http://samskim.com/",
 	"dbPath": "//data//db_record.json",
 	"depth": "2",
 	"extract": "true",

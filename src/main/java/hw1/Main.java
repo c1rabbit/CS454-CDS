@@ -63,7 +63,11 @@ public class Main {
 
     // run extractor if desired
     if (extract) {
+<<<<<<< HEAD
       WebExtractor extractor = new WebExtractor();
+=======
+      WebExtractor extractor = new WebExtractor(dbPath, paths);
+>>>>>>> 930b559b9e6b9572607533949bde6618c8ea31ec
       extractor.run();
       System.out.println("Finished Extracting");
     }
