@@ -69,9 +69,9 @@ public class WebExtractor {
     String configLocation = "config.json";
     Util util = new Util();
     JSONObject config = util.jsonParser(configLocation);
-    mongoClient = new MongoClient(new MongoClientURI((String) config.get("mongoURL")));
-    db = mongoClient.getDB((String) config.get("database"));
-    collection = db.getCollection((String) config.get("collection"));
+    mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+    db = mongoClient.getDB("cs454");
+    collection = db.getCollection("hw2");
     
     // drop collection to start fresh
     collection.drop();
