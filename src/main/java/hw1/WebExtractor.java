@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
@@ -22,6 +24,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.jpeg.JpegParser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
@@ -43,24 +46,13 @@ public class WebExtractor {
   private MongoClient mongoClient;
   private DB db;
   private DBCollection collection;
-  private static boolean dump;
-  private static FileWriter fw;
-
-  public static void main(String[] args) throws IOException {
-    System.out.println("Extracter Starting from JAR..");
-
-    WebExtractor extractor = new WebExtractor();
-    dump = true;
-    String path = "dump.json";
-    fw = new FileWriter(path);
-    extractor.run();
-  }
-
+  
   public WebExtractor() throws UnknownHostException {
 
     this.path = Paths.get(".").toAbsolutePath().normalize().toString() + "/data";
     this.dir = new File(path);
     this.tika = new Tika();
+    
     String configLocation = "config.json";
     Util util = new Util();
     JSONObject config = util.jsonParser(configLocation);
@@ -74,31 +66,31 @@ public class WebExtractor {
   }
 
   public void run() throws IOException {
-    visit(dir, tika);
-    mongoClient.close();
-    fw.close();
-    System.out.println("Done.");
-    
+    System.out.println("Start Extracting..");
+    visit(dir);
+    mongoClient.close();    
   }
 
-  public void visit(File file, Tika tika) {
+  public void visit(File file) {
 
     if (file.isDirectory()) {
       String[] children = file.list();
       for (int i = 0; i < children.length; i++) {
-        visit(new File(file, children[i]), tika);
+        visit(new File(file, children[i]));
       }
     } else if (file.isFile()) {
 
       try {
+        //String filetype = tika.detect(file);
 
         Parser parser = new AutoDetectParser();
         BodyContentHandler handler = new BodyContentHandler();
         Metadata metadata = new Metadata();
         FileInputStream inputstream = new FileInputStream(file);
         ParseContext context = new ParseContext();
+        
         parser.parse(inputstream, handler, metadata, context);
-
+        
         // mongodb document object
         DBObject webpage = new BasicDBObject();
 
@@ -119,36 +111,18 @@ public class WebExtractor {
         webpage.put("content", content);
         collection.insert(webpage);
 
-        System.out.println();
-
-        if (dump) {
-          writeFile(webpage);
-        }
-
       } catch (IOException e) {
         e.printStackTrace();
-      } catch (TikaException e) {
+      }
+      
+      catch (TikaException e) {
         e.printStackTrace();
       } catch (SAXException e) {
         e.printStackTrace();
-      }
+      } 
     }
   }
 
-  private void writeFile(DBObject doc) {
-    JSONObject json = new JSONObject();
-    
-    for (String s: doc.keySet()){
-      json.put(s, doc.get(s));
-    }
-        
-    try {
-      fw.write(json.toJSONString() + "\n");
-      fw.flush();
-      
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
+ 
+  
 }
