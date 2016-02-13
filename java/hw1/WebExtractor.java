@@ -115,7 +115,8 @@ public class WebExtractor {
         }
         
         String uri = "";
-        uri = (filetype.contains("image")) ? file.getParentFile().getName() : new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
+        uri = (filetype.contains("gif")) ? 
+            file.getParentFile().getName() : new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
         
         webpage.put("uri", uri);
         System.out.println("extracting uri: " + uri + " from file: " + file.getPath());
