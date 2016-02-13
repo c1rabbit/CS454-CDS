@@ -24,7 +24,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.jpeg.JpegParser;
+
 import org.apache.tika.sax.BodyContentHandler;
 import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
