@@ -2,5 +2,8 @@
 	"startingUrl": "http://localhost/",
 	"dbPath": "//data//db_record.json",
 	"depth": "2",
-	"extract": "true"
+	"extract": "true",
+	"mongoURL" : "mongodb://localhost:27017",
+	"database" : "cs454",
+	"collection" : "hw2"
 }
