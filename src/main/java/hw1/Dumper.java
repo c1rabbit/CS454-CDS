@@ -29,7 +29,7 @@ public class Dumper {
     try {
    
       fw = new FileWriter(path);
-      mongoClient = new MongoClient("mongodb://localhost:27017");
+      mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
       DB db = mongoClient.getDB("cs454");
       DBCollection collection = db.getCollection("hw2");
       DBObject query = new BasicDBObject();
