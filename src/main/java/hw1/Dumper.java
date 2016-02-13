@@ -29,9 +29,9 @@ public class Dumper {
     try {
    
       fw = new FileWriter(path);
-      mongoClient = new MongoClient(new MongoClientURI((String) config.get("mongoURL")));
-      DB db = mongoClient.getDB((String) config.get("database"));
-      DBCollection collection = db.getCollection((String) config.get("collection"));
+      mongoClient = new MongoClient("mongodb://localhost:27017");
+      DB db = mongoClient.getDB("cs454");
+      DBCollection collection = db.getCollection("hw2");
       DBObject query = new BasicDBObject();
       DBCursor cursor = collection.find(query);
 
