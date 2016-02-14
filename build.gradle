@@ -18,6 +18,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
 configurations {
+	/*comment out the dependencies that you need to use*/
 	//compile.exclude module: 'tika-core'
 	all*.exclude group: 'org.gagravarr'
 	all*.exclude group: 'com.healthmarketscience.jackcess'
