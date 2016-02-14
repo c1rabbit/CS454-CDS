@@ -67,8 +67,7 @@ public class WebCrawler {
         // create the html file with the filename
         Files.write(Paths.get(dataFolder + "/" + randomName), doc.html().getBytes());
         // set the "uri" attribute for the file just created
-        Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "user:uri", uri.getPath()
-            .getBytes());
+        Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "user:uri", uri.getPath().getBytes());
 
         // download the OTHER stuff
         Elements images = doc.select("img");
@@ -80,8 +79,12 @@ public class WebCrawler {
                 new FileOutputStream(dataFolder + "/" + util.filenameStripper(i.absUrl("src")));
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             fos.close();
+            Files.setAttribute(Paths.get(dataFolder + "/" + util.filenameStripper(i.absUrl("src"))),
+                "user:uri", uri.getPath().getBytes());
           }
         }
+
+
 
         // queue links
         if (uri.getDepth() < depth) {
