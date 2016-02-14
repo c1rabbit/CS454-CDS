@@ -29,7 +29,7 @@ configurations {
 	all*.exclude group: 'org.apache.maven.scm'    	
 	all*.exclude group: 'org.apache.xmlbeans'
 	all*.exclude group: 'org.codehaus.plexus'
-	//all*.exclude group: 'org.apache.commons'
+	all*.exclude group: 'org.apache.commons'
 	all*.exclude group: 'org.apache.poi'
 	all*.exclude group: 'com.pff'
 	all*.exclude group: 'com.drewnoakes'
