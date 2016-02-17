@@ -5,8 +5,6 @@
  * file and calls the components to perform crawling.
  */
 
-package hw1;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;

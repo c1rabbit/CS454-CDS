@@ -6,7 +6,7 @@
  * links
  */
 
-package hw1;
+
 
 import java.io.FileOutputStream;
 import java.net.URI;

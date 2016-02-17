@@ -5,7 +5,7 @@
  * DB or file, and then removes the WebPath object from the queue
  */
 
-package hw1;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -91,7 +91,7 @@ public class WebExtractor {
       for (int i = 0; i < children.length; i++) {
         visit(new File(file, children[i]));
       }
-    } else if (file.isFile()) {
+    } else if (file.isFile() && file.length() > 0) {
 
       try {
         String filetype = tika.detect(file);
@@ -114,6 +114,7 @@ public class WebExtractor {
           webpage.put(name, metadata.get(name));
         }
         
+        System.out.println(file.getParentFile().getName() + "/" + file.getName());
         String uri = "";
         uri = (filetype.contains("gif")) ? 
             file.getParentFile().getName() : new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));

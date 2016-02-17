@@ -17,45 +17,7 @@ dependencies {
     compile 'org.mongodb:mongo-java-driver:2.12.3'
     testCompile group: 'junit', name: 'junit', version: '4.+'
 }
-configurations {
-	/*comment out the dependencies that you need to use*/
-	//compile.exclude module: 'tika-core'
-	all*.exclude group: 'org.gagravarr'
-	all*.exclude group: 'com.healthmarketscience.jackcess'
-	all*.exclude group: 'org.tukaani'
-	all*.exclude group: 'org.apache.james'
-	all*.exclude group: 'com.googlecode.mp4parser'
-	all*.exclude group: 'de.l3s.boilerpipe'
-	all*.exclude group: 'org.apache.cxf'
-	all*.exclude group: 'org.apache.maven.scm'    	
-	all*.exclude group: 'org.apache.xmlbeans'
-	all*.exclude group: 'org.codehaus.plexus'
-	all*.exclude group: 'org.apache.commons'
-	all*.exclude group: 'org.apache.poi'
-	all*.exclude group: 'com.pff'
-	all*.exclude group: 'com.drewnoakes'
-	all*.exclude group: 'net.sourceforge.jmatio'
-	all*.exclude group: 'org.ow2.asm'
-	all*.exclude group: 'com.github.junrar'
-	all*.exclude group: 'org.apache.opennlp'
-	all*.exclude group: 'edu.ucar'
-	all*.exclude group: 'org.bouncycastle'
-	all*.exclude group: 'com.googlecode.juniversalchardet'
-	all*.exclude group: 'org.codelibs'
-	all*.exclude group: 'org.apache.sis'
-	all*.exclude group: 'org.opengis'
-	all*.exclude group: 'org.apache.sis.storage'
-	all*.exclude group: 'org.apache.sis.core'
-	all*.exclude group: 'org.apache.pdfbox'
-	all*.exclude group: 'org.ccil.cowan.tagsoup'
-	all*.exclude group: 'org.apache.pdfbox'
-	all*.exclude group: 'jdom'
-	all*.exclude group: 'rome'
-	//all*.exclude group: 'commons-io'
-	all*.exclude group: 'commons-codec'
-	all*.exclude group: 'org.json'
-	
-} 
+
 
 jar { 
     manifest { 
