@@ -1,11 +1,10 @@
+package hw1;
 /*
  * CS 454 - Calvin Thanh, Sam Kim, Di Shen
  * 
  * WebExtractor picks up WebPath objects in the queue and extracts the contents, then write them to
  * DB or file, and then removes the WebPath object from the queue
  */
-
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,6 +64,7 @@ public class WebExtractor {
     this.path = Paths.get(".").toAbsolutePath().normalize().toString() + "/data";
     this.dir = new File(path);
     this.tika = new Tika();
+    tika.setMaxStringLength(100*1024*1024);
     
     String configLocation = "config.json";
     Util util = new Util();
@@ -85,7 +85,7 @@ public class WebExtractor {
   }
 
   public void visit(File file) {
-
+    //Traversal referenced from 'tutorials point - Tika'
     if (file.isDirectory()) {
       String[] children = file.list();
       for (int i = 0; i < children.length; i++) {
@@ -114,7 +114,7 @@ public class WebExtractor {
           webpage.put(name, metadata.get(name));
         }
         
-        System.out.println(file.getParentFile().getName() + "/" + file.getName());
+        //System.out.println(file.getParentFile().getName() + "/" + file.getName());
         String uri = "";
         uri = (filetype.contains("gif")) ? 
             file.getParentFile().getName() : new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
