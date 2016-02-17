@@ -1,3 +1,4 @@
+package hw1;
 /*
  * CS 454 - Calvin Thanh, Sam Kim, Di Shen
  * 

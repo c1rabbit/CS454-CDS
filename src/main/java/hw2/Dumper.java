@@ -1,3 +1,4 @@
+package hw2;
 
 
 import java.io.FileWriter;
@@ -14,6 +15,8 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+
+import hw1.Util;
 
 public class Dumper {
   private static FileWriter fw;
