@@ -5,7 +5,7 @@
  * file and calls the components to perform crawling.
  */
 
-package hw1;
+package main.java.hw1;
 
 import java.io.File;
 import java.io.IOException;

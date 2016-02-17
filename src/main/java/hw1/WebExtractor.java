@@ -5,7 +5,7 @@
  * DB or file, and then removes the WebPath object from the queue
  */
 
-package hw1;
+package main.java.hw1;
 
 import java.io.File;
 import java.io.FileInputStream;

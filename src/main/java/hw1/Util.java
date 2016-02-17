@@ -4,7 +4,7 @@
  * Util object conatins common methods such as JSON parsing and writing.
  */
 
-package hw1;
+package main.java.hw1;
 
 import java.io.File;
 import java.io.FileReader;

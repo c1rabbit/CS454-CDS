@@ -1,4 +1,4 @@
-package hw1;
+package main.java.hw1;
 
 public class WebPath {
   private int depth;
