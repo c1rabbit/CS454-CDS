@@ -21,7 +21,7 @@ dependencies {
 
 jar { 
     manifest { 
-        attributes 'Main-Class':'hw1.Main'
+        attributes 'Main-Class':'search_engine.Main'
     } 
 }
 
