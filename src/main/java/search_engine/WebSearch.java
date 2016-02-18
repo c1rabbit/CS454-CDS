@@ -1,5 +1,4 @@
-package hw1;
-
+package search_engine;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

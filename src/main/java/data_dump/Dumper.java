@@ -1,5 +1,11 @@
-package hw2;
+package data_dump;
 
+/*
+ * CS 454 - Calvin Thanh, Sam Kim, Di Shen
+ * 
+ * This utility reads from the MongoDB and displays data stored in the console. This is only used
+ * for homework 2.
+ */
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,6 +14,8 @@ import java.util.Iterator;
 
 import org.json.simple.JSONObject;
 
+import search_engine.Util;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -15,8 +23,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-
-import hw1.Util;
 
 public class Dumper {
   private static FileWriter fw;
@@ -30,7 +36,6 @@ public class Dumper {
     MongoClient mongoClient;
 
     try {
-
       fw = new FileWriter(path);
       mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
       DB db = mongoClient.getDB("cs454");
@@ -52,8 +57,6 @@ public class Dumper {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
-
   }
 
   private static void writeToFile(DBObject doc) {
@@ -72,5 +75,4 @@ public class Dumper {
       e.printStackTrace();
     }
   }
-
 }

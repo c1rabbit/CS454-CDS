@@ -1,4 +1,5 @@
-package hw1;
+package search_engine;
+
 /*
  * CS 454 - Calvin Thanh, Sam Kim, Di Shen
  * 
@@ -6,8 +7,6 @@ package hw1;
  * commonly shared queue, where the WebExtractor objects will read and extract information from the
  * links
  */
-
-
 
 import java.io.FileOutputStream;
 import java.net.URI;
@@ -68,7 +67,8 @@ public class WebCrawler {
         // create the html file with the filename
         Files.write(Paths.get(dataFolder + "/" + randomName), doc.html().getBytes());
         // set the "uri" attribute for the file just created
-        Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "user:uri", uri.getPath().getBytes());
+        Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "user:uri", uri.getPath()
+            .getBytes());
 
         // download the OTHER stuff
         Elements images = doc.select("img");
@@ -80,12 +80,11 @@ public class WebCrawler {
                 new FileOutputStream(dataFolder + "/" + util.filenameStripper(i.absUrl("src")));
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             fos.close();
-            Files.setAttribute(Paths.get(dataFolder + "/" + util.filenameStripper(i.absUrl("src"))),
-                "user:uri", uri.getPath().getBytes());
+            Files.setAttribute(
+                Paths.get(dataFolder + "/" + util.filenameStripper(i.absUrl("src"))), "user:uri",
+                uri.getPath().getBytes());
           }
         }
-
-
 
         // queue links
         if (uri.getDepth() < depth) {

@@ -1,11 +1,10 @@
-package hw1;
+package search_engine;
+
 /*
  * CS 454 - Calvin Thanh, Sam Kim, Di Shen
  * 
  * Util object conatins common methods such as JSON parsing and writing.
  */
-
-
 
 import java.io.File;
 import java.io.FileReader;
@@ -32,7 +31,8 @@ public class Util {
   }
 
   // generate random 20 char string (html filenames)
-  // source: http://stackoverflow.com/questions/20536566/creating-a-random-string-with-a-z-and-0-9-in-java
+  // source:
+  // http://stackoverflow.com/questions/20536566/creating-a-random-string-with-a-z-and-0-9-in-java
   public String randomString() {
     String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     StringBuilder salt = new StringBuilder();
@@ -81,7 +81,4 @@ public class Util {
     String[] output = uri.split("/");
     return output[output.length - 1];
   }
- 
-
 }
-
