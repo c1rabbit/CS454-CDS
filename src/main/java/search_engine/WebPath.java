@@ -1,5 +1,4 @@
-package hw1;
-
+package search_engine;
 
 public class WebPath {
   private int depth;

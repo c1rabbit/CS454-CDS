@@ -1,4 +1,5 @@
-package hw1;
+package search_engine;
+
 /*
  * CS 454 - Calvin Thanh, Sam Kim, Di Shen
  * 
@@ -8,14 +9,10 @@ package hw1;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
 
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
@@ -23,12 +20,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
-
 import org.apache.tika.sax.BodyContentHandler;
-import org.json.simple.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.xml.sax.SAXException;
 
 import com.mongodb.BasicDBObject;
@@ -45,47 +37,37 @@ public class WebExtractor {
   private MongoClient mongoClient;
   private DB db;
   private DBCollection collection;
-  
+
   /*
-  //for testing purpose
-  public static void main(String[] args) throws UnknownHostException{
-    WebExtractor extractor = new WebExtractor();
-    try {
-      extractor.run();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
-  */
-  
-  public WebExtractor() throws UnknownHostException {
+   * //for testing purpose public static void main(String[] args) throws UnknownHostException{
+   * WebExtractor extractor = new WebExtractor(); try { extractor.run(); } catch (IOException e) {
+   * // TODO Auto-generated catch block e.printStackTrace(); } }
+   */
+
+  public WebExtractor(String mongoURL, String database, String collectionName)
+      throws UnknownHostException {
 
     this.path = Paths.get(".").toAbsolutePath().normalize().toString() + "/data";
     this.dir = new File(path);
     this.tika = new Tika();
-    tika.setMaxStringLength(100*1024*1024);
-    
-    String configLocation = "config.json";
-    Util util = new Util();
-    JSONObject config = util.jsonParser(configLocation);
-    mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-    db = mongoClient.getDB("cs454");
-    collection = db.getCollection("hw2");
-    
+    tika.setMaxStringLength(100 * 1024 * 1024);
+
+    mongoClient = new MongoClient(new MongoClientURI(mongoURL));
+    db = mongoClient.getDB(database);
+    collection = db.getCollection(collectionName);
+
     // drop collection to start fresh
     collection.drop();
-
   }
 
   public void run() throws IOException {
     System.out.println("Start Extracting..");
     visit(dir);
-    mongoClient.close();    
+    mongoClient.close();
   }
 
   public void visit(File file) {
-    //Traversal referenced from 'tutorials point - Tika'
+    // Traversal referenced from 'tutorials point - Tika'
     if (file.isDirectory()) {
       String[] children = file.list();
       for (int i = 0; i < children.length; i++) {
@@ -101,9 +83,9 @@ public class WebExtractor {
         Metadata metadata = new Metadata();
         FileInputStream inputstream = new FileInputStream(file);
         ParseContext context = new ParseContext();
-        
+
         parser.parse(inputstream, handler, metadata, context);
-        
+
         // mongodb document object
         DBObject webpage = new BasicDBObject();
 
@@ -113,15 +95,16 @@ public class WebExtractor {
         for (String name : metadataNames) {
           webpage.put(name, metadata.get(name));
         }
-        
-        //System.out.println(file.getParentFile().getName() + "/" + file.getName());
+
+        // System.out.println(file.getParentFile().getName() + "/" + file.getName());
         String uri = "";
-        uri = (filetype.contains("gif")) ? 
-            file.getParentFile().getName() : new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
-        
+        uri =
+            (filetype.contains("gif")) ? file.getParentFile().getName() : new String(
+                (byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
+
         webpage.put("uri", uri);
         System.out.println("extracting uri: " + uri + " from file: " + file.getPath());
-        
+
         webpage.put("filepath", file.getPath());
         webpage.put("size_in_kb", file.length() / 1024);
         String content = tika.parseToString(file);
@@ -131,15 +114,12 @@ public class WebExtractor {
       } catch (IOException e) {
         e.printStackTrace();
       }
-      
+
       catch (TikaException e) {
         e.printStackTrace();
       } catch (SAXException e) {
         e.printStackTrace();
-      } 
+      }
     }
   }
-
- 
-  
 }

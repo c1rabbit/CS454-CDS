@@ -1,4 +1,5 @@
-package hw1;
+package search_engine;
+
 /*
  * CS 454 - Calvin Thanh, Sam Kim, Di Shen
  * 
@@ -15,34 +16,36 @@ import java.util.LinkedList;
 import org.json.simple.JSONObject;
 
 public class Main {
-	public static void main(String[] args) throws IOException, URISyntaxException {
+  public static void main(String[] args) throws IOException, URISyntaxException {
     Util util = new Util();
     String configLocation = "config.json";
-    JSONObject config = util.jsonParser(configLocation);
     URI uri = new URI("localhost");
     int depth = 2;
     boolean extract = false;
     String downloadPath = "./data";
+    String mongoURL = "mongodb://localhost:27017";
+    String database = "cs454";
+    String collectionName = "hw2";
 
     if (args.length == 0) { // if no parameter, read from config.json
-    	try{
-      uri = new URI((String) config.get("startingUrl"));
-      depth = Integer.parseInt((String) config.get("depth"));
-      String temp = (String) config.get("extract");
-      if (temp.equals("true"))
-        extract = true;
-    	}
-    	catch(Exception e){
-    		System.out.println("Please include parameter"); 
-    		System.out.println("\t-d\tdepth");
-    		System.out.println("\t-u\turl");
-    	}finally{
-    		System.exit(1);
-    	}
+      try {
+        JSONObject config = util.jsonParser(configLocation);
+        mongoURL = (String) config.get("mongoURL");
+        database = (String) config.get("database");
+        collectionName = (String) config.get("collectionName");
+        // variables from either config file or command parameters
+        uri = new URI((String) config.get("startingUrl"));
+        depth = Integer.parseInt((String) config.get("depth"));
+        String temp = (String) config.get("extract");
+        if (temp.equals("true"))
+          extract = true;
+      } catch (Exception e) {
+        System.err.println("Config.json not found!");
+      }
     } else { // if there are parameters, read from parameters
       for (int i = 0; i < args.length; i++) {
         if (args[i].equals("-d")) {
-          if (args[i + 1] != null && isNum(args[i + 1]) && args[i + 1].charAt(0) != '-') {
+          if (args[i + 1] != null && util.isNum(args[i + 1]) && args[i + 1].charAt(0) != '-') {
             depth = Integer.parseInt(args[i + 1]);
             i++;
           }
@@ -58,7 +61,6 @@ public class Main {
     }
 
     // creating URI queue for crawling
-    String dbPath = (String) config.get("dbPath");
     LinkedList<WebPath> paths = new LinkedList<>();
 
     // run crawler
@@ -71,14 +73,9 @@ public class Main {
 
     // run extractor if desired
     if (extract) {
-
-      WebExtractor extractor = new WebExtractor();
+      WebExtractor extractor = new WebExtractor(mongoURL, database, collectionName);
       extractor.run();
       System.out.println("Finished Extracting");
     }
   }
-
-	private static boolean isNum(String s) {
-		return s.matches("[-+]?\\d*\\.?\\d+");
-	}
 }
