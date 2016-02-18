@@ -93,6 +93,7 @@ public class WebExtractor {
         String[] metadataNames = metadata.names();
 
         for (String name : metadataNames) {
+          name = name.replace('.', '_');
           webpage.put(name, metadata.get(name));
         }
 
