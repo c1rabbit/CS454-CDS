@@ -14,8 +14,6 @@ import java.util.Iterator;
 
 import org.json.simple.JSONObject;
 
-import search_engine.Util;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -30,9 +28,6 @@ public class Dumper {
   public static void main(String[] args) {
     System.out.println("Extracter Starting from JAR..");
     String path = "dump.json";
-    String configLocation = "config.json";
-    Util util = new Util();
-    JSONObject config = util.jsonParser(configLocation);
     MongoClient mongoClient;
 
     try {
@@ -59,6 +54,7 @@ public class Dumper {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static void writeToFile(DBObject doc) {
     JSONObject json = new JSONObject();
 

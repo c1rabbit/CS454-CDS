@@ -21,7 +21,6 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.json.simple.JSONObject;
 import org.xml.sax.SAXException;
 
 import com.mongodb.BasicDBObject;
@@ -45,23 +44,20 @@ public class WebExtractor {
    * // TODO Auto-generated catch block e.printStackTrace(); } }
    */
 
-  public WebExtractor() throws UnknownHostException {
+  public WebExtractor(String mongoURL, String database, String collectionName)
+      throws UnknownHostException {
 
     this.path = Paths.get(".").toAbsolutePath().normalize().toString() + "/data";
     this.dir = new File(path);
     this.tika = new Tika();
     tika.setMaxStringLength(100 * 1024 * 1024);
 
-    String configLocation = "config.json";
-    Util util = new Util();
-    JSONObject config = util.jsonParser(configLocation);
-    mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
-    db = mongoClient.getDB("cs454");
-    collection = db.getCollection("hw2");
+    mongoClient = new MongoClient(new MongoClientURI(mongoURL));
+    db = mongoClient.getDB(database);
+    collection = db.getCollection(collectionName);
 
     // drop collection to start fresh
     collection.drop();
-
   }
 
   public void run() throws IOException {

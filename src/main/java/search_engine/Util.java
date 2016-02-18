@@ -81,4 +81,9 @@ public class Util {
     String[] output = uri.split("/");
     return output[output.length - 1];
   }
+
+  // indicate whether the string is a number
+  public boolean isNum(String s) {
+    return s.matches("[-+]?\\d*\\.?\\d+");
+  }
 }
