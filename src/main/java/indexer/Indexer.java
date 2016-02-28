@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -61,12 +60,17 @@ public class Indexer {
         new Indexer(mongoURL, database, indexCollection, outboundLinkCollection, path);
 
     // File dir = new File("wiki");
-    String url = "wiki/en/articles/c/h/i/";
+    String url = "wiki/";
     File root = new File(url);
 
+    long startTime = System.nanoTime();   
+        
     indexer.run(root);
     indexer.closeConnection();
+    long estimatedTime = System.nanoTime() - startTime;
     System.out.println("Indices created successfully.");
+    System.out.println("Process took " + estimatedTime/1000000000.0);
+    
 
   }
   
@@ -93,11 +97,12 @@ public class Indexer {
 
       // create outbound link index
       makeOutboundLinkIndex(file.getName(), doc);
-      System.out.println("Outbound Link Index created at collection: outboundLinks");
+      System.out.println("Outbound Link Index created for: " + file.getName());
 
       // create index
+      System.out.println("Writing Index for: " + file.getName());
       makeIndex(file.getName(), text);
-      System.out.println("Index created at collection: index");
+      System.out.println("Finished writing index for:  " + file.getName());
     }
   }
 
@@ -116,8 +121,7 @@ public class Indexer {
           set.add(linkname);
       }
     }
-    
-    
+        
     Document mongodoc = new Document();
     mongodoc.append("file", filename);
     mongodoc.append("pages", set);
