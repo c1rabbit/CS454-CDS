@@ -32,7 +32,7 @@ public class LinkAnalysis {
 		}
 		JSONObject json = (JSONObject) obj;
 		this.outLinksCollection = json;
-		System.out.println(this.outLinksCollection.toJSONString());
+		System.out.println("out links: " + this.outLinksCollection);
 
 		// set new collection
 		inLinksCollection = new JSONObject();
@@ -83,7 +83,7 @@ public class LinkAnalysis {
 
 		// finalize jsonarray
 
-		System.out.println(inLinksCollection);
+		System.out.println("in links: " + inLinksCollection);
 
 	}
 
