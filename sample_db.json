@@ -1,19 +1,19 @@
 {
 	"db":
 	[{
-		"url":"doc1",
+		"name":"doc1",
 		"link":["doc2","doc3","doc4"]
 	},
 	{
-		"url":"doc2",
+		"name":"doc2",
 		"link":["doc1"]
 	},
 	{
-		"url":"doc3",
+		"name":"doc3",
 		"link":["doc1","doc2"]
 	},
 	{
-		"url":"doc4",
+		"name":"doc4",
 		"link":["doc1"]
 	}]
 }

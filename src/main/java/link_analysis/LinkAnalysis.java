@@ -3,7 +3,6 @@ package link_analysis;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +16,7 @@ public class LinkAnalysis {
 	private List<Link> link;
 	private Map<String, Double> tempRank;
 	private List<Map> tempRankList;
-	private JSONObject jsonDB;
+	private JSONObject outLinksCollection;
 	private JSONObject inLinksCollection;
 
 	public LinkAnalysis() {
@@ -29,12 +28,16 @@ public class LinkAnalysis {
 		try {
 			obj = parser.parse(new FileReader("sample_db.json"));
 		} catch (IOException | ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		JSONObject json = (JSONObject) obj;
-		this.jsonDB = json;
-		System.out.println(this.jsonDB.toJSONString());
+		this.outLinksCollection = json;
+		System.out.println(this.outLinksCollection.toJSONString());
+
+		// set new collection
+		inLinksCollection = new JSONObject();
+		inLinksCollection.put("db", new JSONArray());
+
 		buildInLinksCollection();
 	}
 
@@ -45,14 +48,16 @@ public class LinkAnalysis {
 		if (!collection.isEmpty()) {
 			for (int i = 0; i < collection.size(); i++) {
 				JSONObject doc = (JSONObject) collection.get(i);
-				if (doc.get("name") == docName) {
+				if (doc.get("name").equals(docName)) {
 					JSONArray links = (JSONArray) doc.get("links");
-					links.add(link);
+					if (!links.contains(link)) {
+						links.add(link);
+					}
 					match = true;
 				}
 			}
 		}
-		if (!match) {
+		if (!match) {// if new document index
 			JSONObject document = new JSONObject();
 			JSONArray links = new JSONArray();
 			links.add(link);
@@ -61,70 +66,22 @@ public class LinkAnalysis {
 			collection.add(document);
 
 		}
-		// collection.
 
 	}
 
 	public void buildInLinksCollection() {
-		// new collection
-		inLinksCollection = new JSONObject();
-		JSONArray inLinksArray = new JSONArray();
 
-		JSONObject document = new JSONObject();
-		List<String> inLinks = new LinkedList<String>();
-		inLinksCollection.put("db", inLinksArray);
+		JSONArray outlinks = (JSONArray) this.outLinksCollection.get("db");
+		for (int i = 0; i < outlinks.size(); i++) {
+			JSONObject doc = (JSONObject) outlinks.get(i);
+			String src = (String) doc.get("name");
+			List<String> links = (List<String>) doc.get("link");
+			for (String dest : links) {
+				insertLinkRecord(dest, src);
+			}
+		}
 
-		insertLinkRecord("doc1", "document2");
-		insertLinkRecord("doc1", "document1");
-		insertLinkRecord("doc2", "document1");
-
-		// System.out.println(inLinksCollection);
-
-		/*
-		 * inLinks.add("doc1"); inLinks.add("doc2"); document.put("name",
-		 * "doc1"); document.put("links", inLinks); inLinksArray.add(document);
-		 * inLinksArray.add(document);
-		 */
-
-		//
-		/*
-		 * for (int i = 0; i < inLinksArray.size(); i++) { JSONObject j =
-		 * (JSONObject) inLinksArray.get(i); System.out.println(j.get("name"));
-		 * if (j.get("name") == "doc1") { System.out.println("match"); } }
-		 */
-
-		/*
-		 * JSONArray json = (JSONArray) this.jsonDB.get("db"); JSONArray newJSON
-		 * = new JSONArray(); Set<String> exists = new HashSet<String>(); for
-		 * (int i = 0; i < json.size(); i++) { JSONObject o = (JSONObject)
-		 * json.get(i); String name = o.get("url").toString();
-		 * System.out.println(o.get("url")); // add unique id to array JSONArray
-		 * inLinks = (JSONArray) jsonInLinks.get("db"); for(int j =0 ;
-		 * j<inLinks.size() ;j++){ JSONObject in = (JSONObject) inLinks.get(j);
-		 * if (!exists.contains(in.get("url"))){
-		 * exists.add(in.get("url").toString()); JSONObject j1 = new
-		 * JSONObject(); j1.put(in.get("url"), new JSONArray());
-		 * newJSON.add(j1); }
-		 * 
-		 * }
-		 * 
-		 * if(inLinks.get(i).containsAll("asd")) List a = new
-		 * LinkedList((Collection) o.get("link")); for (int j = 0; j < a.size();
-		 * j++) { String link = a.get(j).toString(); System.out.println("-" +
-		 * link);
-		 * 
-		 * } System.out.println(newJSON.toString());
-		 * 
-		 * 
-		 * }
-		 */
-		/*
-		 * for (int i = 0; i < this.jsonDB.get("db"); i++) {
-		 * 
-		 * }
-		 */
 		// finalize jsonarray
-		inLinksCollection.put("db", inLinksArray);
 
 		System.out.println(inLinksCollection);
 
