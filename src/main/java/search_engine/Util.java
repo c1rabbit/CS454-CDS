@@ -8,7 +8,12 @@ package search_engine;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -85,5 +90,33 @@ public class Util {
   // indicate whether the string is a number
   public boolean isNum(String s) {
     return s.matches("[-+]?\\d*\\.?\\d+");
+  }
+
+  // apply Porter stem. imports Stemmer class
+  public String stem(String word) {
+    Stemmer stemmer = new Stemmer();
+    String str = word.toLowerCase().trim();
+    for (char c : str.toCharArray()) stemmer.add(c);
+    stemmer.stem();
+    return stemmer.toString();
+  }
+  
+  // check if a word is a stop word. imports StopWords class
+  public boolean isStopWord(String word){
+    StopWords sw = new StopWords();
+    return sw.isStopWord(word);
+  }
+  
+  // source taken from "Java 8 - Base64" tutorial from www.tutorialspoint.com
+  public String encode(String str) throws UnsupportedEncodingException{
+    String base64encodedString = Base64.getEncoder().encodeToString(str.getBytes("utf-8"));
+    return base64encodedString;
+  }
+
+  // source taken from "Java 8 - Base64" tutorial from www.tutorialspoint.com
+  public String decode(String base64encodedString) throws UnsupportedEncodingException{
+    byte[] base64decodedBytes = Base64.getDecoder().decode(base64encodedString);
+    String originalString = new String(base64decodedBytes, "utf-8");
+    return originalString;
   }
 }
