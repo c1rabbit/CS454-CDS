@@ -137,10 +137,10 @@ public class LinkAnalysis {
 						}
 
 					}
-					System.out.println(l + " outlink count: " + size);
+					//System.out.println(l + " outlink count: " + size);
 					double currentRank = rank.get(name) / size;
 					tempRank += currentRank;
-					System.out.println(l + ": +" + currentRank);
+					//System.out.println(l + ": +" + currentRank);
 				}
 				System.out.println("--rank: " + name + " " + tempRank);
 				temp.put(name, tempRank);
