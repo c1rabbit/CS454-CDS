@@ -4,7 +4,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,14 +14,11 @@ import org.json.simple.parser.ParseException;
 
 public class LinkAnalysis {
 	private int threads = 1;
-	private List<Link> link;
-	private Map<String, Double> tempRank;
-	private List<Map> tempRankList;
 	private JSONObject outLinksCollection;
 	private JSONObject inLinksCollection;
 
 	public LinkAnalysis() {
-		tempRankList = new ArrayList<Map>();
+		new ArrayList<Map>();
 
 		// set file db from
 		JSONParser parser = new JSONParser();
@@ -34,7 +30,6 @@ public class LinkAnalysis {
 		}
 		JSONObject json = (JSONObject) obj;
 		this.outLinksCollection = json;
-		JSONArray outdocs = (JSONArray) json.get("db");
 		for (int i = 0; i < this.outLinksCollection.size(); i++) {
 			this.outLinksCollection.get("db");
 		}
@@ -108,14 +103,13 @@ public class LinkAnalysis {
 		JSONArray inLinks = (JSONArray) inLinksCollection.get("db");
 
 		// iterate and rank through each document
-		Map<String, Double> temp = new HashMap<String, Double>();
-		for (String key : rank.keySet()) {
-			temp.put(key, 0.0);
-		}
-		System.out.println("tempRank:\t" + temp);
 
 		int iteration = 0;
 		while (iteration < 3) {
+			Map<String, Double> temp = new HashMap<String, Double>();
+
+			// System.out.println("rank:\t" + rank);
+			// System.out.println("tempRank:\t" + temp);
 
 			for (int i = 0; i < inLinks.size(); i++) {
 				JSONObject j = (JSONObject) inLinks.get(i);
@@ -137,12 +131,12 @@ public class LinkAnalysis {
 						}
 
 					}
-					//System.out.println(l + " outlink count: " + size);
-					double currentRank = rank.get(name) / size;
+					// System.out.println(l + " outlink count: " + size);
+					double currentRank = rank.get(l) / size;
 					tempRank += currentRank;
-					//System.out.println(l + ": +" + currentRank);
+					// System.out.println(l + ": +" + currentRank);
 				}
-				System.out.println("--rank: " + name + " " + tempRank);
+				// System.out.println("--rank: " + name + " " + tempRank);
 				temp.put(name, tempRank);
 
 			}
@@ -152,36 +146,6 @@ public class LinkAnalysis {
 			System.out.println("iteration: " + iteration + " " + rank);
 			iteration++;
 		}
-
-		/*
-		 * for (String key : rank.keySet()) { // get rank per key(document)
-		 * double value = 0.0; // System.out.println(docs);
-		 * 
-		 * temp.put(key, value);
-		 * 
-		 * }
-		 */
-
-		/*
-		 * for (int i = 0; i < 4; i++) {
-		 * 
-		 * for (int j = 0; j < docCount; j++) { JSONObject document =
-		 * (JSONObject) docs.get(j); List<String> links = (LinkedList<String>)
-		 * document.get("link"); for (String link : links) {
-		 * temp.put(document.get("name").toString(),
-		 * temp.get(document.get("name"))); } } for (String document :
-		 * rank.keySet()) {
-		 * 
-		 * }
-		 * 
-		 * }
-		 * 
-		 * for (String key : rank.keySet()) {
-		 * 
-		 * double rankValue = rank.get(key);
-		 * 
-		 * }
-		 */
 
 	}
 }
