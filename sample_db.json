@@ -2,18 +2,18 @@
 	"db":
 	[{
 		"name":"doc1",
-		"link":["doc2","doc3","doc4"]
+		"links":["doc2","doc3","doc4"]
 	},
 	{
 		"name":"doc2",
-		"link":["doc1"]
+		"links":["doc1"]
 	},
 	{
 		"name":"doc3",
-		"link":["doc1","doc2"]
+		"links":["doc1","doc2"]
 	},
 	{
 		"name":"doc4",
-		"link":["doc1"]
+		"links":["doc1"]
 	}]
 }
