@@ -4,21 +4,39 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.Document;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 public class LinkAnalysis {
 	private int threads = 1;
 	private JSONObject outLinksCollection;
 	private JSONObject inLinksCollection;
 
+	private MongoClient mongoClient;
+	private MongoDatabase db;
+	private MongoCollection outboundLinkCollection;
+
 	public LinkAnalysis() {
-		new ArrayList<Map>();
+		String mongoURL = "mongodb://localhost:27017";
+		String database = "cs454";
+		String outboundLinkCollection = "outboundLinks";
+
+		this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
+		this.db = mongoClient.getDatabase(database);
+		this.outboundLinkCollection = db.getCollection(outboundLinkCollection);
 
 		// set file db from
 		JSONParser parser = new JSONParser();
@@ -30,9 +48,36 @@ public class LinkAnalysis {
 		}
 		JSONObject json = (JSONObject) obj;
 		this.outLinksCollection = json;
-		for (int i = 0; i < this.outLinksCollection.size(); i++) {
-			this.outLinksCollection.get("db");
+
+		this.outLinksCollection = new JSONObject();
+
+		
+
+		// build outlinks
+		FindIterable<Document> iterable = this.outboundLinkCollection.find();
+		Iterator<Document> iterator = iterable.iterator();
+		JSONArray outLinksList = new JSONArray();
+		while (iterator.hasNext()) {
+			
+			JSONObject object = new JSONObject();
+
+			Document d = iterator.next();
+			String filename = (String) d.get("file");
+			ArrayList<String> webpageList = (ArrayList<String>) d.get("pages");
+			object.put("name", filename);
+			object.put("links", webpageList);
+			// System.out.println("filename: " + filename);
+			//for (String page : webpageList) {
+				// System.out.print(page + ", ");
+			//}
+			//System.out.println(webpageList);
+			outLinksList.add(object);
 		}
+		this.outLinksCollection.put("db", outLinksList);
+		/*
+		 * for (int i = 0; i < this.outLinksCollection.size(); i++) {
+		 * this.outLinksCollection.get("db"); }
+		 */
 		System.out.println("out links: " + this.outLinksCollection);
 
 		// set new collection
