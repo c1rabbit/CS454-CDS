@@ -51,14 +51,12 @@ public class LinkAnalysis {
 
 		this.outLinksCollection = new JSONObject();
 
-		
-
 		// build outlinks
 		FindIterable<Document> iterable = this.outboundLinkCollection.find();
 		Iterator<Document> iterator = iterable.iterator();
 		JSONArray outLinksList = new JSONArray();
 		while (iterator.hasNext()) {
-			
+
 			JSONObject object = new JSONObject();
 
 			Document d = iterator.next();
@@ -67,10 +65,10 @@ public class LinkAnalysis {
 			object.put("name", filename);
 			object.put("links", webpageList);
 			// System.out.println("filename: " + filename);
-			//for (String page : webpageList) {
-				// System.out.print(page + ", ");
-			//}
-			//System.out.println(webpageList);
+			// for (String page : webpageList) {
+			// System.out.print(page + ", ");
+			// }
+			// System.out.println(webpageList);
 			outLinksList.add(object);
 		}
 		this.outLinksCollection.put("db", outLinksList);
@@ -83,7 +81,7 @@ public class LinkAnalysis {
 		// set new collection
 		inLinksCollection = new JSONObject();
 		inLinksCollection.put("db", new JSONArray());
-
+		buildInLinksCollection();
 		run();
 	}
 
@@ -132,12 +130,12 @@ public class LinkAnalysis {
 	}
 
 	public void run() {
-		buildInLinksCollection();
 
 		// get total number of documents
 		JSONArray docs = (JSONArray) outLinksCollection.get("db");
 
 		double docCount = docs.size();
+
 		Map<String, Double> rank = new HashMap<String, Double>();
 		for (int i = 0; i < docCount; i++) {
 			JSONObject doc = (JSONObject) docs.get(i);
@@ -158,7 +156,7 @@ public class LinkAnalysis {
 
 			for (int i = 0; i < inLinks.size(); i++) {
 				JSONObject j = (JSONObject) inLinks.get(i);
-				String name = (String) j.get("name");
+				Object name = j.get("name");
 				List<String> ilinks = (List<String>) j.get("links");
 
 				double tempRank = 0.0;
@@ -169,7 +167,7 @@ public class LinkAnalysis {
 					for (int k = 0; k < docs.size(); k++) {
 						JSONObject obj = (JSONObject) docs.get(k);
 
-						if (obj.get("name").equals(l)) {
+						if (obj.get("name") == l) {
 							List<String> o = (List<String>) obj.get("links");
 							size = o.size();
 
@@ -177,18 +175,32 @@ public class LinkAnalysis {
 
 					}
 					// System.out.println(l + " outlink count: " + size);
-					double currentRank = rank.get(l) / size;
-					tempRank += currentRank;
+					// System.out.println(l);
+					try {
+						double currentRank = rank.get(l) / size;
+						tempRank += currentRank;
+					} catch (Exception e) {
+
+						// System.out.println(rank);
+						System.err.println("can't get from rank map: " + l);
+						System.err.println(name);
+						System.exit(0);
+					}
 					// System.out.println(l + ": +" + currentRank);
 				}
 				// System.out.println("--rank: " + name + " " + tempRank);
-				temp.put(name, tempRank);
+				temp.put(name.toString(), tempRank);
 
 			}
 
 			// set temp ranking to final rank set
+
 			rank = temp;
-			System.out.println("iteration: " + iteration + " " + rank);
+			System.out
+					.println("completed iteration: " + iteration + " " + rank);
+			/*
+			 * for (String s : temp.keySet()) { System.out.println(s); }
+			 */
 			iteration++;
 		}
 
