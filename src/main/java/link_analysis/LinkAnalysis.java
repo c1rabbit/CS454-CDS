@@ -24,6 +24,7 @@ public class LinkAnalysis {
 	private int threads = 1;
 	private JSONObject outLinksCollection;
 	private JSONObject inLinksCollection;
+	private int iteration_max;
 
 	private MongoClient mongoClient;
 	private MongoDatabase db;
@@ -31,7 +32,8 @@ public class LinkAnalysis {
 
 	private MongoCollection rankCollection;
 
-	public LinkAnalysis() {
+	public LinkAnalysis(int iterations) {
+		this.iteration_max = iterations;
 		System.out.println("connecting to db");
 		String mongoURL = "mongodb://localhost:27017";
 		String database = "cs454";
@@ -150,14 +152,14 @@ public class LinkAnalysis {
 			JSONObject doc = (JSONObject) docs.get(i);
 			rank.put(doc.get("name").toString(), (double) (1 / docCount));
 		}
-		System.out.println("initial rank:\t" + rank);
+		System.out.println("initial rank:\t\t" + rank);
 
 		JSONArray inLinks = (JSONArray) inLinksCollection.get("db");
 
 		// iterate and rank through each document
 
 		int iteration = 0;
-		while (iteration < 3) {
+		while (iteration < iteration_max) {
 			Map<String, Double> temp = new HashMap<String, Double>();
 
 			// System.out.println("rank:\t" + rank);
@@ -165,7 +167,7 @@ public class LinkAnalysis {
 
 			for (int i = 0; i < inLinks.size(); i++) {
 				JSONObject j = (JSONObject) inLinks.get(i);
-				Object name = j.get("name");
+				String name = (String) j.get("name");
 				List<String> ilinks = (List<String>) j.get("links");
 
 				double tempRank = 0.0;
@@ -196,9 +198,10 @@ public class LinkAnalysis {
 						System.exit(0);
 					}
 					// System.out.println(l + ": +" + currentRank);
+					temp.put(l, tempRank);
 				}
 				// System.out.println("--rank: " + name + " " + tempRank);
-				temp.put(name.toString(), tempRank);
+				// temp.put(name, tempRank);
 
 			}
 
@@ -206,7 +209,7 @@ public class LinkAnalysis {
 
 			rank = temp;
 			System.out
-					.println("completed iteration: " + iteration + " " + rank);
+					.println("completed iteration:\t" + iteration + " " + rank);
 			/*
 			 * for (String s : temp.keySet()) { System.out.println(s); }
 			 */
@@ -229,9 +232,9 @@ public class LinkAnalysis {
 			}
 			temp.put(s, rank.get(s) / total);
 		}
-		System.out.println("finished normalizing results");
+		System.out.println("--finished normalizing results");
 		rank = temp;
-		// System.out.println(rank);
+		System.out.println("rank:\t" + rank);
 
 		System.out.println("size:\t" + rank.size());
 		System.out.println("total raw sum:\t" + total);
@@ -243,6 +246,7 @@ public class LinkAnalysis {
 		for (String s : rank.keySet()) {
 			addRankIndex(s, rank.get(s));
 		}
+		System.out.println("--Results recorded");
 
 	}
 
