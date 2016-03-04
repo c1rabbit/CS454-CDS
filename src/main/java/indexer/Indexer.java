@@ -3,6 +3,7 @@ package indexer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -24,8 +25,8 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import static java.util.Arrays.asList;
 
+import static java.util.Arrays.asList;
 import search_engine.Util;
 
 public class Indexer {
@@ -117,8 +118,14 @@ public class Indexer {
       if (address.trim().length() > 0) {
         int lastSlashIndex = address.lastIndexOf('/') + 1;
         String linkname = address.substring(lastSlashIndex);
-        if (linkname.trim().length() > 0 && linkname.contains(".html"))
-          set.add(linkname);
+        if (linkname.trim().length() > 0 && linkname.contains(".html")){
+			try {
+				set.add(java.net.URLDecoder.decode(linkname, "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
       }
     }
         
