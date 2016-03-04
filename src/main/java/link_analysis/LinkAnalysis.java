@@ -30,6 +30,7 @@ public class LinkAnalysis {
 	private MongoCollection outboundLinkCollection;
 
 	public LinkAnalysis() {
+		System.out.println("connecting to db");
 		String mongoURL = "mongodb://localhost:27017";
 		String database = "cs454";
 		String outboundLinkCollection = "outboundLinks";
@@ -131,6 +132,8 @@ public class LinkAnalysis {
 
 	public void run() {
 
+		System.out.println("initializing link analysis...");
+
 		// get total number of documents
 		JSONArray docs = (JSONArray) outLinksCollection.get("db");
 
@@ -203,6 +206,35 @@ public class LinkAnalysis {
 			 */
 			iteration++;
 		}
+		String n = "";
+		double highest = 0.0;
+		double total = 0.0;
+		for (String s : rank.keySet()) {
+			total += rank.get(s);
+		}
+		
+		// normalize results
+		Map<String, Double> temp = new HashMap<String, Double>();
+
+		for (String s : rank.keySet()) {
+			if (rank.get(s) > highest) {
+				highest = rank.get(s);
+				n = s;
+			}
+			temp.put(s, rank.get(s) / total);
+		}
+		System.out.println("finished normalizing results");
+		rank = temp;
+		//System.out.println(rank);
+		
+		System.out.println("size:\t" + rank.size());
+		System.out.println("total raw sum:\t" + total);
+		System.out.println("highest ranked:\t" + n + "\t" + rank.get(n));
+
+
+		System.out.println("--Link Analysis completed");
+
+		// record results
 
 	}
 }
