@@ -6,7 +6,7 @@ import java.util.Map;
 public class LinkAnalysisMain {
 
 	public static void main(String[] args) {
-		LinkAnalysis analyze = new LinkAnalysis();
+		LinkAnalysis analyze = new LinkAnalysis(3);
 
 	}
 }
