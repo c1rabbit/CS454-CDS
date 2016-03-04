@@ -29,14 +29,21 @@ public class LinkAnalysis {
 	private MongoDatabase db;
 	private MongoCollection outboundLinkCollection;
 
+	private MongoCollection rankCollection;
+
 	public LinkAnalysis() {
+		System.out.println("connecting to db");
 		String mongoURL = "mongodb://localhost:27017";
 		String database = "cs454";
 		String outboundLinkCollection = "outboundLinks";
+		String rankCollection = "rankCollection";
 
 		this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
 		this.db = mongoClient.getDatabase(database);
 		this.outboundLinkCollection = db.getCollection(outboundLinkCollection);
+
+		this.rankCollection = db.getCollection(rankCollection);
+		this.rankCollection.drop();
 
 		// set file db from
 		JSONParser parser = new JSONParser();
@@ -131,6 +138,8 @@ public class LinkAnalysis {
 
 	public void run() {
 
+		System.out.println("initializing link analysis...");
+
 		// get total number of documents
 		JSONArray docs = (JSONArray) outLinksCollection.get("db");
 
@@ -203,6 +212,46 @@ public class LinkAnalysis {
 			 */
 			iteration++;
 		}
+		String n = "";
+		double highest = 0.0;
+		double total = 0.0;
+		for (String s : rank.keySet()) {
+			total += rank.get(s);
+		}
+
+		// normalize results
+		Map<String, Double> temp = new HashMap<String, Double>();
+
+		for (String s : rank.keySet()) {
+			if (rank.get(s) > highest) {
+				highest = rank.get(s);
+				n = s;
+			}
+			temp.put(s, rank.get(s) / total);
+		}
+		System.out.println("finished normalizing results");
+		rank = temp;
+		// System.out.println(rank);
+
+		System.out.println("size:\t" + rank.size());
+		System.out.println("total raw sum:\t" + total);
+		System.out.println("highest ranked:\t" + n + "\t" + rank.get(n));
+
+		System.out.println("--Link Analysis completed");
+
+		// record results
+		for (String s : rank.keySet()) {
+			addRankIndex(s, rank.get(s));
+		}
+
+	}
+
+	public void addRankIndex(String file, double rank) {
+
+		Document mongodoc = new Document();
+		mongodoc.append("file", file);
+		mongodoc.append("rank", rank);
+		rankCollection.insertOne(mongodoc);
 
 	}
 }
