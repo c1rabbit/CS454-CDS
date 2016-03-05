@@ -29,10 +29,11 @@ public class LinkAnalysis {
 	private MongoClient mongoClient;
 	private MongoDatabase db;
 	private MongoCollection outboundLinkCollection;
-
+	private boolean show_long_output;
 	private MongoCollection rankCollection;
 
-	public LinkAnalysis(int iterations) {
+	public LinkAnalysis(int iterations, boolean show_long_output) {
+		this.show_long_output = show_long_output;
 		this.iteration_max = iterations;
 		System.out.println("connecting to db");
 		String mongoURL = "mongodb://localhost:27017";
@@ -48,15 +49,12 @@ public class LinkAnalysis {
 		this.rankCollection.drop();
 
 		// set file db from
-		/*JSONParser parser = new JSONParser();
-		Object obj = null;
-		try {
-			obj = parser.parse(new FileReader("sample_db.json"));
-		} catch (IOException | ParseException e) {
-			e.printStackTrace();
-		}
-		JSONObject json = (JSONObject) obj;
-		this.outLinksCollection = json;*/
+		/*
+		 * JSONParser parser = new JSONParser(); Object obj = null; try { obj =
+		 * parser.parse(new FileReader("sample_db.json")); } catch (IOException
+		 * | ParseException e) { e.printStackTrace(); } JSONObject json =
+		 * (JSONObject) obj; this.outLinksCollection = json;
+		 */
 
 		this.outLinksCollection = new JSONObject();
 
@@ -85,7 +83,11 @@ public class LinkAnalysis {
 		 * for (int i = 0; i < this.outLinksCollection.size(); i++) {
 		 * this.outLinksCollection.get("db"); }
 		 */
-		System.out.println("out links: " + this.outLinksCollection);
+		if (show_long_output) {
+			System.out.println("out links: " + this.outLinksCollection);
+		} else {
+			System.out.println("out links created");
+		}
 
 		// set new collection
 		inLinksCollection = new JSONObject();
@@ -134,7 +136,11 @@ public class LinkAnalysis {
 		}
 
 		// finalize jsonarray
-		System.out.println("in links: " + inLinksCollection);
+		if (show_long_output) {
+			System.out.println("in links: " + inLinksCollection);
+		} else {
+			System.out.println("in links created");
+		}
 
 	}
 
@@ -152,7 +158,11 @@ public class LinkAnalysis {
 			JSONObject doc = (JSONObject) docs.get(i);
 			rank.put(doc.get("name").toString(), (double) (1 / docCount));
 		}
-		System.out.println("initial rank:\t\t" + rank);
+		if (show_long_output) {
+			System.out.println("initial rank:\t\t" + rank);
+		} else {
+			System.out.println("initial rank set");
+		}
 
 		JSONArray inLinks = (JSONArray) inLinksCollection.get("db");
 
@@ -208,8 +218,10 @@ public class LinkAnalysis {
 			// set temp ranking to final rank set
 
 			rank = temp;
-			System.out
-					.println("completed iteration:\t" + iteration + " " + rank);
+			System.out.println("completed iteration:\t" + iteration);
+			if (show_long_output) {
+				System.out.println(rank);
+			}
 			/*
 			 * for (String s : temp.keySet()) { System.out.println(s); }
 			 */
@@ -234,7 +246,9 @@ public class LinkAnalysis {
 		}
 		System.out.println("--finished normalizing results");
 		rank = temp;
-		System.out.println("rank:\t" + rank);
+		if (show_long_output) {
+			System.out.println("rank:\t" + rank);
+		}
 
 		System.out.println("size:\t" + rank.size());
 		System.out.println("total raw sum:\t" + total);
