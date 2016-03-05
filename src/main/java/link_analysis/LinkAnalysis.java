@@ -48,7 +48,7 @@ public class LinkAnalysis {
 		this.rankCollection.drop();
 
 		// set file db from
-		JSONParser parser = new JSONParser();
+		/*JSONParser parser = new JSONParser();
 		Object obj = null;
 		try {
 			obj = parser.parse(new FileReader("sample_db.json"));
@@ -56,7 +56,7 @@ public class LinkAnalysis {
 			e.printStackTrace();
 		}
 		JSONObject json = (JSONObject) obj;
-		this.outLinksCollection = json;
+		this.outLinksCollection = json;*/
 
 		this.outLinksCollection = new JSONObject();
 
