@@ -247,7 +247,7 @@ public class Indexer {
         // if not a word - ex. numbers, special characters - just increment index
         n++;
       }
-    }
+    }scan.close();
 
   }
 

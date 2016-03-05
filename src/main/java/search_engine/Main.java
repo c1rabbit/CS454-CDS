@@ -73,8 +73,8 @@ public class Main {
 
     // run extractor if desired
     if (extract) {
-      WebExtractor extractor = new WebExtractor(mongoURL, database, collectionName);
-      extractor.run();
+     // WebExtractor extractor = new WebExtractor(mongoURL, database, collectionName);
+    //  extractor.run();
       System.out.println("Finished Extracting");
     }
   }
