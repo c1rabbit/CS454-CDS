@@ -47,7 +47,6 @@ public class LinkAnalysis {
 
 		this.rankCollection = db.getCollection(rankCollection);
 		this.rankCollection.drop();
-
 		// set file db from
 		/*
 		 * JSONParser parser = new JSONParser(); Object obj = null; try { obj =
@@ -261,6 +260,8 @@ public class LinkAnalysis {
 			addRankIndex(s, rank.get(s));
 		}
 		System.out.println("--Results recorded");
+
+		mongoClient.close();
 
 	}
 
