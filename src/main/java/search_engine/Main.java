@@ -15,6 +15,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 
+import link_analysis.LinkAnalysis;
+
 import org.json.simple.JSONObject;
 
 public class Main {
@@ -27,6 +29,8 @@ public class Main {
     String indexCollection = "index";
     String outboundLinkCollection = "outboundLinks";
     String localSampleDataPath = "wiki/en/articles/c/h/i";
+    String rankCollection = "rankCollection";
+    int iterations = 3;
 
     // legacy parameters
     int depth = 2;
@@ -46,6 +50,8 @@ public class Main {
       indexCollection = (String) config.get("indexCollection");
       outboundLinkCollection = (String) config.get("outboundLinkCollection");
       localSampleDataPath = (String) config.get("localSampleDataPath");
+      rankCollection = (String) config.get("rankCollection");
+      iterations = Integer.parseInt((String) config.get("iteration"));
 
       // legacy parameters
       depth = Integer.parseInt((String) config.get("depth"));
@@ -101,7 +107,13 @@ public class Main {
 
     // launch indexer
     Indexer indexer =
-        new Indexer(mongoURL, database, indexCollection, outboundLinkCollection, localSampleDataPath);
+        new Indexer(mongoURL, database, indexCollection, outboundLinkCollection,
+            localSampleDataPath);
     indexer.run();
+
+    // launch link analysis
+    LinkAnalysis linkAnalysis =
+        new LinkAnalysis(mongoURL, database, outboundLinkCollection, rankCollection, iterations);
+    linkAnalysis.run();
   }
 }

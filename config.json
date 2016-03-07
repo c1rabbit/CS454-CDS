@@ -9,5 +9,7 @@
 	"baseCollection": "hw2",
 	"indexCollection": "index",
 	"outboundLinkCollection": "outboundLinks",
-	"localSampleDataPath": "wiki/en/articles/c/h/i"
+	"rankCollection": "rankCollection",
+	"localSampleDataPath": "wiki/en/articles/c/h/i",
+	"iterations": 3
 }

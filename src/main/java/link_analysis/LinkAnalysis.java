@@ -32,13 +32,10 @@ public class LinkAnalysis {
 
 	private MongoCollection rankCollection;
 
-	public LinkAnalysis(int iterations) {
+	public LinkAnalysis(String mongoURL, String database, String outboundLinkCollection,
+	      String rankCollection, int iterations) {
 		this.iteration_max = iterations;
 		System.out.println("connecting to db");
-		String mongoURL = "mongodb://localhost:27017";
-		String database = "cs454";
-		String outboundLinkCollection = "outboundLinks";
-		String rankCollection = "rankCollection";
 
 		this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
 		this.db = mongoClient.getDatabase(database);
