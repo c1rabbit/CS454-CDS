@@ -1,4 +1,4 @@
-package rankers;
+package tfidf_analysis;
 
 import java.util.ArrayList;
 import java.util.Collections;

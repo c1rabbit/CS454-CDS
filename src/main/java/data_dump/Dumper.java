@@ -33,6 +33,7 @@ public class Dumper {
     try {
       fw = new FileWriter(path);
       mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+      @SuppressWarnings("deprecation")
       DB db = mongoClient.getDB("cs454");
       DBCollection collection = db.getCollection("hw2");
       DBObject query = new BasicDBObject();
@@ -67,7 +68,6 @@ public class Dumper {
       fw.flush();
 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

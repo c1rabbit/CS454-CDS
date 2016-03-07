@@ -38,12 +38,7 @@ public class WebExtractor {
   private DB db;
   private DBCollection collection;
 
-  /*
-   * //for testing purpose public static void main(String[] args) throws UnknownHostException{
-   * WebExtractor extractor = new WebExtractor(); try { extractor.run(); } catch (IOException e) {
-   * // TODO Auto-generated catch block e.printStackTrace(); } }
-   */
-
+  @SuppressWarnings("deprecation")
   public WebExtractor(String mongoURL, String database, String collectionName)
       throws UnknownHostException {
 
@@ -93,7 +88,8 @@ public class WebExtractor {
         String[] metadataNames = metadata.names();
 
         for (String name : metadataNames) {
-          if (name.contains(".")) name = name.replace('.', '_');
+          if (name.contains("."))
+            name = name.replace('.', '_');
           webpage.put(name, metadata.get(name));
         }
 
