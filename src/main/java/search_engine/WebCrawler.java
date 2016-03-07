@@ -29,7 +29,6 @@ public class WebCrawler {
   private List<WebPath> paths;
   private Set<String> visited;
   private String downloadPath;
-  Util util = new Util();
 
   public WebCrawler(URI uri, int depth, List<WebPath> paths, String downloadPath) {
     this.depth = depth;
@@ -53,17 +52,17 @@ public class WebCrawler {
 
       try {
         doc = Jsoup.connect(uri.getPath()).get();
-        String newDomainName = util.domainStripper(uri.getPath());
+        String newDomainName = Util.domainStripper(uri.getPath());
 
         // create a random folder in data folder
         if (!newDomainName.equals(oldDomainName)) {
           oldDomainName = newDomainName;
           dataFolder = "./" + downloadPath + "/" + newDomainName;
-          util.createDir(dataFolder);
+          Util.createDir(dataFolder);
         }
 
         // create a random html filename
-        String randomName = util.randomString() + ".html";
+        String randomName = Util.randomString() + ".html";
         // create the html file with the filename
         Files.write(Paths.get(dataFolder + "/" + randomName), doc.html().getBytes());
         // set the "uri" attribute for the file just created
@@ -77,11 +76,11 @@ public class WebCrawler {
             URL website = new URL(i.absUrl("src"));
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
             FileOutputStream fos =
-                new FileOutputStream(dataFolder + "/" + util.filenameStripper(i.absUrl("src")));
+                new FileOutputStream(dataFolder + "/" + Util.filenameStripper(i.absUrl("src")));
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
             fos.close();
             Files.setAttribute(
-                Paths.get(dataFolder + "/" + util.filenameStripper(i.absUrl("src"))), "user:uri",
+                Paths.get(dataFolder + "/" + Util.filenameStripper(i.absUrl("src"))), "user:uri",
                 uri.getPath().getBytes());
           }
         }

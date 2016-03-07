@@ -20,8 +20,8 @@ import com.mongodb.client.MongoDatabase;
 public class TfIdf {
   private MongoClient mongoClient;
   private MongoDatabase db;
+  @SuppressWarnings("rawtypes")
   private MongoCollection index;
-  private Util util = new Util();
   private List<Page> rankedPages = new ArrayList<>();
 
   public static void main(String[] args) {
@@ -45,11 +45,12 @@ public class TfIdf {
     this.index = db.getCollection(index);
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private void rank(String query) {
     if (query == null)
       return;
 
-    double docCount = util.fileCounter("wiki/en/articles/c/h");
+    double docCount = Util.fileCounter("wiki/en/articles/c/h");
     String[] queries = query.split(" ");
     boolean calculateIdf = queries.length > 1;
     String filename = "";

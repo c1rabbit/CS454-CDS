@@ -20,7 +20,6 @@ import org.json.simple.JSONObject;
 public class Main {
   public static void main(String[] args) throws IOException, URISyntaxException {
     // parameters necessary to run the program
-    Util util = new Util();
     String configLocation = "config.json";
     String downloadPath = "./data";
     String mongoURL = "mongodb://localhost:27017";
@@ -40,7 +39,7 @@ public class Main {
 
     // new parameter handling (always read from config.json)
     try {
-      JSONObject config = util.jsonParser(configLocation);
+      JSONObject config = Util.jsonParser(configLocation);
       downloadPath = (String) config.get("downloadPath");
       mongoURL = (String) config.get("mongoURL");
       database = (String) config.get("database");
@@ -64,7 +63,7 @@ public class Main {
     if (args.length > 0) { // if there are parameters, read from parameters
       for (int i = 0; i < args.length; i++) {
         if (args[i].equals("-d")) {
-          if (args[i + 1] != null && util.isNum(args[i + 1]) && args[i + 1].charAt(0) != '-') {
+          if (args[i + 1] != null && Util.isNum(args[i + 1]) && args[i + 1].charAt(0) != '-') {
             depth = Integer.parseInt(args[i + 1]);
             i++;
           }
@@ -84,10 +83,10 @@ public class Main {
       // creating URI queue for crawling
       LinkedList<WebPath> paths = new LinkedList<>();
 
-      if (util.deleteDir(new File(downloadPath)))
+      if (Util.deleteDir(new File(downloadPath)))
         System.out.println("Folder deleted!");
 
-      util.createDir(downloadPath);
+      Util.createDir(downloadPath);
       WebCrawler crawler = new WebCrawler(uri, depth, paths, downloadPath);
       crawler.run();
       System.out.println("Finished Crawling");

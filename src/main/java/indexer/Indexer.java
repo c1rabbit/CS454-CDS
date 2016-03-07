@@ -116,7 +116,6 @@ public class Indexer {
   public void makeIndex(String filename, String text) {
     Scanner scan = new Scanner(text);
     int n = 0;
-    Util util = new Util();
 
     while (scan.hasNext()) {
       String word = scan.next();
@@ -158,8 +157,8 @@ public class Indexer {
           String poll = queue.poll();
 
           // if the word is not a single character and
-          if (poll.length() > 1 && !util.isStopWord(poll)) {
-            String stemmed = util.stem(poll);
+          if (poll.length() > 1 && !Util.isStopWord(poll)) {
+            String stemmed = Util.stem(poll);
 
             Document termDoc = new Document();
             Document fileDoc = new Document();
