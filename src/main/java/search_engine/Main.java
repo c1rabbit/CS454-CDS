@@ -19,6 +19,8 @@ import link_analysis.LinkAnalysis;
 
 import org.json.simple.JSONObject;
 
+import tfidf_analysis.Tfidf;
+
 public class Main {
   public static void main(String[] args) throws IOException, URISyntaxException {
     // parameters necessary to run the program
@@ -31,6 +33,8 @@ public class Main {
     String localSampleDataPath = "wiki/en/articles/c/h/i";
     String rankCollection = "rankCollection";
     int iterations = 3;
+    double tfidfRatio = 1.0;
+    double linkRatio = 1.5;
 
     // legacy parameters
     int depth = 2;
@@ -38,11 +42,12 @@ public class Main {
     URI uri = new URI("http://samskim.com/");
 
     // component booleans
-    boolean crawl = false;
-    boolean extract = false;
-    boolean index = false;
-    boolean debug_mode = false;
-    boolean link_analysis = false;
+    boolean runCrawl = false;
+    boolean runExtract = false;
+    boolean runIndex = false;
+    boolean runDebugMode = false;
+    boolean runLinkAnalysis = false;
+    boolean runTfidf = false;
 
     // new parameter handling (always read from config.json)
     try {
@@ -55,6 +60,8 @@ public class Main {
       localSampleDataPath = (String) config.get("localSampleDataPath");
       rankCollection = (String) config.get("rankCollection");
       iterations = Integer.parseInt(config.get("iterations").toString());
+      tfidfRatio = Double.parseDouble(config.get("tfidfRatio").toString());
+      linkRatio = Double.parseDouble(config.get("linkRatio").toString());
 
       // legacy parameters
       depth = Integer.parseInt((String) config.get("depth"));
@@ -62,38 +69,38 @@ public class Main {
       uri = new URI((String) config.get("uri"));
 
       // component booleans
-      crawl = (boolean) config.get("crawl");
-      extract = (boolean) config.get("extract");
-      index = (boolean) config.get("index");
-      debug_mode = (boolean) config.get("debug_mode");
-      link_analysis = (boolean) config.get("link_analysis");
-
+      runCrawl = (boolean) config.get("runCrawl");
+      runExtract = (boolean) config.get("runExtract");
+      runIndex = (boolean) config.get("runIndex");
+      runDebugMode = (boolean) config.get("runDebugMode");
+      runLinkAnalysis = (boolean) config.get("runLinkAnalysis");
+      runTfidf = (boolean) config.get("runTfidf");
     } catch (Exception e) {
       System.err.println("Unable to locate config.json or parse parameters!");
-      e.printStackTrace();
+      // e.printStackTrace();
     }
 
     // hw 2 parameter handling, overwrite config.json
-    if (args.length > 0) { // if there are parameters, read from parameters
-      for (int i = 0; i < args.length; i++) {
-        if (args[i].equals("-d")) {
-          if (args[i + 1] != null && Util.isNum(args[i + 1]) && args[i + 1].charAt(0) != '-') {
-            depth = Integer.parseInt(args[i + 1]);
-            i++;
-          }
-        } else if (args[i].equals("-u")) {
-          if (args[i + 1] != null && args[i + 1].charAt(0) != '-') {
-            uri = new URI(args[i + 1]);
-            i++;
-          }
-        } else if (args[i].equals("-e")) {
-          extract = true;
-        }
-      }
-    }
+    // if (args.length > 0) { // if there are parameters, read from parameters
+    // for (int i = 0; i < args.length; i++) {
+    // if (args[i].equals("-d")) {
+    // if (args[i + 1] != null && Util.isNum(args[i + 1]) && args[i + 1].charAt(0) != '-') {
+    // depth = Integer.parseInt(args[i + 1]);
+    // i++;
+    // }
+    // } else if (args[i].equals("-u")) {
+    // if (args[i + 1] != null && args[i + 1].charAt(0) != '-') {
+    // uri = new URI(args[i + 1]);
+    // i++;
+    // }
+    // } else if (args[i].equals("-e")) {
+    // extract = true;
+    // }
+    // }
+    // }
 
     // run crawler if desired
-    if (crawl) {
+    if (runCrawl) {
       // creating URI queue for crawling
       LinkedList<WebPath> paths = new LinkedList<>();
 
@@ -107,26 +114,37 @@ public class Main {
     }
 
     // run extractor if desired
-    if (extract) {
+    if (runExtract) {
       // WebExtractor extractor = new WebExtractor(mongoURL, database, baseCollection);
       // extractor.run();
       System.out.println("Finished Extracting");
     }
 
-    // launch indexer
-    if (index) {
+    // run indexer if desired
+    if (runIndex) {
       Indexer indexer =
           new Indexer(mongoURL, database, indexCollection, outboundLinkCollection,
               localSampleDataPath);
       indexer.run();
     }
 
-    // launch link analysis
-    if (link_analysis) {
+    // run link analysis if desired
+    if (runLinkAnalysis) {
       LinkAnalysis linkAnalysis =
           new LinkAnalysis(mongoURL, database, outboundLinkCollection, rankCollection, iterations,
-              debug_mode);
+              runDebugMode);
       linkAnalysis.run();
+    }
+
+    // run tfidf if desired
+    if (runTfidf) {
+      if (args.length == 0) {
+        System.err.println("Please enter search terms!");
+        System.exit(0);
+      }
+      Tfidf tfidf =
+          new Tfidf(mongoURL, database, indexCollection, rankCollection, tfidfRatio, linkRatio);
+      tfidf.rank(args[0]);
     }
   }
 }

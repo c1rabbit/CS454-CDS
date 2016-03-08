@@ -22,31 +22,25 @@ public class Tfidf {
   private MongoDatabase db;
   @SuppressWarnings("rawtypes")
   private MongoCollection index;
+  @SuppressWarnings("rawtypes")
+  private MongoCollection rank;
   private List<Page> rankedPages = new ArrayList<>();
-
-  public static void main(String[] args) {
-    if (args.length == 0) {
-      System.err.println("Please enter search term!");
-      System.exit(0);
-    }
-
-    String mongoURL = "mongodb://localhost:27017";
-    String database = "cs454";
-    String index = "index";
-    Tfidf tfidf = new Tfidf(mongoURL, database, index);
-
-    tfidf.rank(args[0]);
-  }
+  double tfidfRatio;
+  double linkRatio;
 
   // constructor
-  public Tfidf(String mongoURL, String database, String indexCollection) {
+  public Tfidf(String mongoURL, String database, String indexCollection, String rankCollection,
+      double tfidfRatio, double linkRatio) {
     this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
     this.db = mongoClient.getDatabase(database);
     this.index = db.getCollection(indexCollection);
+    this.rank = db.getCollection(rankCollection);
+    this.tfidfRatio = tfidfRatio;
+    this.linkRatio = linkRatio;
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private void rank(String query) {
+  public void rank(String query) {
     if (query == null)
       return;
 
@@ -89,10 +83,26 @@ public class Tfidf {
       }
     }
 
-    // move map elements to rankedPages list
+    // exit program if there's no search result
+    if (map.size() == 0) {
+      System.out.println("No record found!");
+      System.exit(0);
+    }
+
+    // incorporate link analysis weight and move ranked pages to rankedPages list
     Iterator it = map.entrySet().iterator();
     while (it.hasNext()) {
       Map.Entry<String, Double> pair = (Map.Entry<String, Double>) it.next();
+
+      // incorporate link analysis weight
+      // get object with filename
+      FindIterable<Document> iterable = rank.find(new Document("file", pair.getKey()));
+      Document item = iterable.first();
+      // add link analysis ranking to tfidf ranking
+      double linkRank = (double) item.get("rank");
+
+      pair.setValue((pair.getValue() * tfidfRatio) + (linkRank * linkRatio));
+
       rankedPages.add(new Page(pair.getKey(), pair.getValue()));
       it.remove();
     }

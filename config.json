@@ -13,9 +13,13 @@
 	"localSampleDataPath": "wiki/en/articles/c/h/i",
 	"iterations": 3,
 	
-	"crawl": false,
-	"extract": false,
-	"index": false,
-	"link_analysis": true,
-	"debug_mode": false
+	"tfidfRatio": 1.0,
+	"linkRatio": 1.5,
+	
+	"runCrawl": false,
+	"runExtract": false,
+	"runIndex": false,
+	"runLinkAnalysis": false,
+	"runDebugMode": false,
+	"runTfidf": true
 }
