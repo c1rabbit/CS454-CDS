@@ -1,11 +1,11 @@
-package search_engine;
+/*package search_engine;
 
-/*
+
  * CS 454 - Calvin Thanh, Sam Kim, Di Shen
  * 
  * WebExtractor picks up WebPath objects in the queue and extracts the contents, then write them to
  * DB or file, and then removes the WebPath object from the queue
- */
+ 
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -120,3 +120,4 @@ public class WebExtractor {
     }
   }
 }
+*/
