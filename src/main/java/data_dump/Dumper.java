@@ -26,15 +26,16 @@ public class Dumper {
   private static FileWriter fw;
 
   public static void main(String[] args) {
-    System.out.println("Extracter Starting from JAR..");
+    System.out.println("Extracter Starting from JAR...");
     String path = "dump.json";
     MongoClient mongoClient;
 
     try {
       fw = new FileWriter(path);
       mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+      @SuppressWarnings("deprecation")
       DB db = mongoClient.getDB("cs454");
-      DBCollection collection = db.getCollection("hw2");
+      DBCollection collection = db.getCollection("index");
       DBObject query = new BasicDBObject();
       DBCursor cursor = collection.find(query);
 
@@ -67,7 +68,6 @@ public class Dumper {
       fw.flush();
 
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     }
   }

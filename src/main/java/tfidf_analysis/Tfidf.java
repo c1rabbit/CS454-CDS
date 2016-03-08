@@ -1,4 +1,4 @@
-package rankers;
+package tfidf_analysis;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,11 +17,11 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-public class TfIdf {
+public class Tfidf {
   private MongoClient mongoClient;
   private MongoDatabase db;
+  @SuppressWarnings("rawtypes")
   private MongoCollection index;
-  private Util util = new Util();
   private List<Page> rankedPages = new ArrayList<>();
 
   public static void main(String[] args) {
@@ -33,23 +33,24 @@ public class TfIdf {
     String mongoURL = "mongodb://localhost:27017";
     String database = "cs454";
     String index = "index";
-    TfIdf tfidf = new TfIdf(mongoURL, database, index);
+    Tfidf tfidf = new Tfidf(mongoURL, database, index);
 
     tfidf.rank(args[0]);
   }
 
   // constructor
-  public TfIdf(String mongoURL, String database, String index) {
+  public Tfidf(String mongoURL, String database, String indexCollection) {
     this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
     this.db = mongoClient.getDatabase(database);
-    this.index = db.getCollection(index);
+    this.index = db.getCollection(indexCollection);
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private void rank(String query) {
     if (query == null)
       return;
 
-    double docCount = util.fileCounter("wiki/en/articles/c/h");
+    double docCount = Util.fileCounter("wiki/en/articles/c/h");
     String[] queries = query.split(" ");
     boolean calculateIdf = queries.length > 1;
     String filename = "";
@@ -61,7 +62,7 @@ public class TfIdf {
 
     for (String s : queries) {
       // get the object with the term
-      FindIterable<Document> iterable = db.getCollection("index").find(new Document("term", s));
+      FindIterable<Document> iterable = index.find(new Document("term", s));
       Document item = iterable.first();
 
       // calculate weight from term object

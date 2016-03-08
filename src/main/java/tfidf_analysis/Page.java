@@ -1,4 +1,4 @@
-package rankers;
+package tfidf_analysis;
 
 public class Page implements Comparable<Page> {
   private String name;

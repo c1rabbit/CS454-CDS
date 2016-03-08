@@ -1,11 +1,11 @@
 package indexer;
 
+import static java.util.Arrays.asList;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,28 +20,27 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import search_engine.Util;
+
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-import static java.util.Arrays.asList;
-import search_engine.Util;
-
 public class Indexer {
-  private String path;
-  private File dir;
+  private File root;
   private MongoClient mongoClient;
   private MongoDatabase db;
+  @SuppressWarnings("rawtypes")
   private MongoCollection indexCollection;
+  @SuppressWarnings("rawtypes")
   private MongoCollection outboundLinkCollection;
   private Map<String, HashSet<String>> termLocations;
 
   public Indexer(String mongoURL, String database, String indexCollection,
       String outboundLinkCollection, String path) throws UnknownHostException {
-    this.path = Paths.get(".").toAbsolutePath().normalize().toString() + path;
-    this.dir = new File(path);
+    this.root = new File(path);
     this.termLocations = new HashMap<>();
     this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
     this.db = mongoClient.getDatabase(database);
@@ -51,36 +50,14 @@ public class Indexer {
     this.outboundLinkCollection.drop();
   }
 
-  public static void main(String[] args) throws IOException {
-    String mongoURL = "mongodb://localhost:27017";
-    String database = "cs454";
-    String indexCollection = "index";
-    String outboundLinkCollection = "outboundLinks";
-    String path = "/wiki";
-    Indexer indexer =
-        new Indexer(mongoURL, database, indexCollection, outboundLinkCollection, path);
-
-    // File dir = new File("wiki");
-    String url = "wiki/";
-    File root = new File(url);
-
-    long startTime = System.nanoTime();   
-        
-    indexer.run(root);
-    indexer.closeConnection();
-    long estimatedTime = System.nanoTime() - startTime;
-    System.out.println("Indices created successfully.");
-    System.out.println("Process took " + estimatedTime/1000000000.0);
-    
-
-  }
-  
-  public void closeConnection(){
+  public void closeConnection() {
     mongoClient.close();
+    System.out.println("Indices created successfully.");
   }
-  
-  public void run(File root) throws IOException {
+
+  public void run() throws IOException {
     visit(root);
+    closeConnection();
   }
 
   public void visit(File file) throws IOException {
@@ -107,6 +84,7 @@ public class Indexer {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void makeOutboundLinkIndex(String filename, org.jsoup.nodes.Document doc) {
     // get links
     Elements links = doc.select("a");
@@ -118,28 +96,26 @@ public class Indexer {
       if (address.trim().length() > 0) {
         int lastSlashIndex = address.lastIndexOf('/') + 1;
         String linkname = address.substring(lastSlashIndex);
-        if (linkname.trim().length() > 0 && linkname.contains(".html")){
-			try {
-				set.add(java.net.URLDecoder.decode(linkname, "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+        if (linkname.trim().length() > 0 && linkname.contains(".html")) {
+          try {
+            set.add(java.net.URLDecoder.decode(linkname, "UTF-8"));
+          } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+          }
         }
       }
     }
-        
+
     Document mongodoc = new Document();
     mongodoc.append("file", filename);
     mongodoc.append("pages", set);
     outboundLinkCollection.insertOne(mongodoc);
-
   }
 
+  @SuppressWarnings("unchecked")
   public void makeIndex(String filename, String text) {
     Scanner scan = new Scanner(text);
     int n = 0;
-    Util util = new Util();
 
     while (scan.hasNext()) {
       String word = scan.next();
@@ -181,8 +157,8 @@ public class Indexer {
           String poll = queue.poll();
 
           // if the word is not a single character and
-          if (poll.length() > 1 && !util.isStopWord(poll)) {
-            String stemmed = util.stem(poll);
+          if (poll.length() > 1 && !Util.isStopWord(poll)) {
+            String stemmed = Util.stem(poll);
 
             Document termDoc = new Document();
             Document fileDoc = new Document();
@@ -219,22 +195,19 @@ public class Indexer {
                 fileDoc = findFileDoc(locationDocs, filename);
                 indexes = (ArrayList<Integer>) fileDoc.get("index");
                 indexes.add(n);
-                
+
               } else {
                 locations.add(filename);
                 termLocations.put(stemmed, locations);
-                
+
                 indexes.add(n);
                 fileDoc.append("filename", filename);
                 fileDoc.append("index", indexes);
                 locationDocs.add(fileDoc);
               }
-              indexCollection.updateOne(new Document("term", stemmed),
-                  new Document("$set", new Document("location", locationDocs)));
-
-
+              indexCollection.updateOne(new Document("term", stemmed), new Document("$set",
+                  new Document("location", locationDocs)));
             }
-
           }
           n++;
         }
@@ -249,6 +222,7 @@ public class Indexer {
       }
     }
 
+    scan.close();
   }
 
   public Document findFileDoc(ArrayList<Document> documents, String filename) {
@@ -276,6 +250,4 @@ public class Indexer {
       System.out.println();
     }
   }
-
-
 }
