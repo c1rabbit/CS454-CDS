@@ -34,7 +34,7 @@ public class Main {
 
     // legacy parameters
     int depth = 2;
-    String baseCollection = "hw2";
+    // String baseCollection = "hw2";
     URI uri = new URI("http://samskim.com/");
 
     // component booleans
@@ -58,7 +58,7 @@ public class Main {
 
       // legacy parameters
       depth = Integer.parseInt((String) config.get("depth"));
-      baseCollection = (String) config.get("baseCollection");
+      // baseCollection = (String) config.get("baseCollection");
       uri = new URI((String) config.get("uri"));
 
       // component booleans
@@ -67,7 +67,7 @@ public class Main {
       index = (boolean) config.get("index");
       debug_mode = (boolean) config.get("debug_mode");
       link_analysis = (boolean) config.get("link_analysis");
-      
+
     } catch (Exception e) {
       System.err.println("Unable to locate config.json or parse parameters!");
       e.printStackTrace();
@@ -108,23 +108,25 @@ public class Main {
 
     // run extractor if desired
     if (extract) {
-      //WebExtractor extractor = new WebExtractor(mongoURL, database, baseCollection);
-      //extractor.run();
+      // WebExtractor extractor = new WebExtractor(mongoURL, database, baseCollection);
+      // extractor.run();
       System.out.println("Finished Extracting");
     }
 
     // launch indexer
-    if (index){
-    Indexer indexer =
-        new Indexer(mongoURL, database, indexCollection, outboundLinkCollection,
-            localSampleDataPath);
-    indexer.run();
+    if (index) {
+      Indexer indexer =
+          new Indexer(mongoURL, database, indexCollection, outboundLinkCollection,
+              localSampleDataPath);
+      indexer.run();
     }
 
     // launch link analysis
-    if(link_analysis){
-    	LinkAnalysis linkAnalysis = new LinkAnalysis(mongoURL, database, outboundLinkCollection, rankCollection, iterations, debug_mode);
-    linkAnalysis.run();
+    if (link_analysis) {
+      LinkAnalysis linkAnalysis =
+          new LinkAnalysis(mongoURL, database, outboundLinkCollection, rankCollection, iterations,
+              debug_mode);
+      linkAnalysis.run();
     }
   }
 }
