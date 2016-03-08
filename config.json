@@ -1,8 +1,8 @@
 {
 	"uri": "http://samskim.com/",
 	"depth": "2",
-	"crawl": "false",
-	"extract": "false",
+	"crawl": false,
+	"extract": false,
 	"downloadPath": "./data",
 	"mongoURL": "mongodb://localhost:27017",
 	"database": "cs454",
@@ -11,5 +11,8 @@
 	"outboundLinkCollection": "outboundLinks",
 	"rankCollection": "rankCollection",
 	"localSampleDataPath": "wiki/en/articles/c/h/i",
-	"iterations": 3
+	"link_analysis": true,
+	"iterations": 3,
+	"debug_mode": false,
+	"index": false
 }

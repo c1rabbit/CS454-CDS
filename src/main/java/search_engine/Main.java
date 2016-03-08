@@ -40,6 +40,9 @@ public class Main {
     // component booleans
     boolean crawl = false;
     boolean extract = false;
+    boolean index = false;
+    boolean debug_mode = false;
+    boolean link_analysis = false;
 
     // new parameter handling (always read from config.json)
     try {
@@ -51,7 +54,7 @@ public class Main {
       outboundLinkCollection = (String) config.get("outboundLinkCollection");
       localSampleDataPath = (String) config.get("localSampleDataPath");
       rankCollection = (String) config.get("rankCollection");
-      iterations = Integer.parseInt((String) config.get("iteration"));
+      iterations = Integer.parseInt(config.get("iterations").toString());
 
       // legacy parameters
       depth = Integer.parseInt((String) config.get("depth"));
@@ -61,8 +64,13 @@ public class Main {
       // component booleans
       crawl = (boolean) config.get("crawl");
       extract = (boolean) config.get("extract");
+      index = (boolean) config.get("index");
+      debug_mode = (boolean) config.get("debug_mode");
+      link_analysis = (boolean) config.get("link_analysis");
+      
     } catch (Exception e) {
       System.err.println("Unable to locate config.json or parse parameters!");
+      e.printStackTrace();
     }
 
     // hw 2 parameter handling, overwrite config.json
@@ -100,20 +108,23 @@ public class Main {
 
     // run extractor if desired
     if (extract) {
-      WebExtractor extractor = new WebExtractor(mongoURL, database, baseCollection);
-      extractor.run();
+      //WebExtractor extractor = new WebExtractor(mongoURL, database, baseCollection);
+      //extractor.run();
       System.out.println("Finished Extracting");
     }
 
     // launch indexer
+    if (index){
     Indexer indexer =
         new Indexer(mongoURL, database, indexCollection, outboundLinkCollection,
             localSampleDataPath);
     indexer.run();
+    }
 
     // launch link analysis
-    LinkAnalysis linkAnalysis =
-        new LinkAnalysis(mongoURL, database, outboundLinkCollection, rankCollection, iterations);
+    if(link_analysis){
+    	LinkAnalysis linkAnalysis = new LinkAnalysis(mongoURL, database, outboundLinkCollection, rankCollection, iterations, debug_mode);
     linkAnalysis.run();
+    }
   }
 }

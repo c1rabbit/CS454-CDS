@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.7
 version = '1.0'
 
 repositories {
@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     compile 'com.google.guava:guava:18.0'
-    compile 'org.apache.tika:tika-parsers:1.11'
+    //compile 'org.apache.tika:tika-parsers:1.11'
    
     compile 'org.jsoup:jsoup:1.8.3'
 	compile 'com.googlecode.json-simple:json-simple:1.1.1'

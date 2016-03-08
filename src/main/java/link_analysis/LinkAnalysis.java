@@ -31,9 +31,12 @@ public class LinkAnalysis {
 	private MongoCollection outboundLinkCollection;
 
 	private MongoCollection rankCollection;
+	boolean debug;
 
-	public LinkAnalysis(String mongoURL, String database, String outboundLinkCollection,
-	      String rankCollection, int iterations) {
+	public LinkAnalysis(String mongoURL, String database,
+			String outboundLinkCollection, String rankCollection,
+			int iterations, boolean debug) {
+		this.debug = debug;
 		this.iteration_max = iterations;
 		System.out.println("connecting to db");
 
@@ -82,13 +85,17 @@ public class LinkAnalysis {
 		 * for (int i = 0; i < this.outLinksCollection.size(); i++) {
 		 * this.outLinksCollection.get("db"); }
 		 */
-		System.out.println("out links: " + this.outLinksCollection);
 
+		if (debug) {
+			System.out.println("out links: " + this.outLinksCollection);
+		} else {
+			System.out.println("creating out links");
+		}
 		// set new collection
 		inLinksCollection = new JSONObject();
 		inLinksCollection.put("db", new JSONArray());
 		buildInLinksCollection();
-		run();
+		//run();
 	}
 
 	public void insertLinkRecord(String docName, String link) {
@@ -131,8 +138,11 @@ public class LinkAnalysis {
 		}
 
 		// finalize jsonarray
-		System.out.println("in links: " + inLinksCollection);
-
+		if (debug) {
+			System.out.println("in links: " + inLinksCollection);
+		} else {
+			System.out.println("creating in links");
+		}
 	}
 
 	public void run() {
@@ -149,7 +159,11 @@ public class LinkAnalysis {
 			JSONObject doc = (JSONObject) docs.get(i);
 			rank.put(doc.get("name").toString(), (double) (1 / docCount));
 		}
-		System.out.println("initial rank:\t\t" + rank);
+		if (debug) {
+			System.out.println("initial rank:\t\t" + rank);
+		} else {
+			System.out.println("creating intial ranks");
+		}
 
 		JSONArray inLinks = (JSONArray) inLinksCollection.get("db");
 
@@ -205,8 +219,12 @@ public class LinkAnalysis {
 			// set temp ranking to final rank set
 
 			rank = temp;
-			System.out
-					.println("completed iteration:\t" + iteration + " " + rank);
+			if (debug) {
+				System.out.println("completed iteration:\t" + iteration + " "
+						+ rank);
+			} else {
+				System.out.println("completed iteration:\t" + iteration);
+			}
 			/*
 			 * for (String s : temp.keySet()) { System.out.println(s); }
 			 */
@@ -231,7 +249,9 @@ public class LinkAnalysis {
 		}
 		System.out.println("--finished normalizing results");
 		rank = temp;
-		System.out.println("rank:\t" + rank);
+		if (debug) {
+			System.out.println("rank:\t" + rank);
+		}
 
 		System.out.println("size:\t" + rank.size());
 		System.out.println("total raw sum:\t" + total);
