@@ -20,6 +20,7 @@ import com.mongodb.client.MongoDatabase;
 public class Tfidf {
   private MongoClient mongoClient;
   private MongoDatabase db;
+  private String localSampleDataPath;
   @SuppressWarnings("rawtypes")
   private MongoCollection index;
   @SuppressWarnings("rawtypes")
@@ -29,10 +30,11 @@ public class Tfidf {
   double linkRatio;
 
   // constructor
-  public Tfidf(String mongoURL, String database, String indexCollection, String rankCollection,
+  public Tfidf(String mongoURL, String database, String localSampleDataPath, String indexCollection, String rankCollection,
       double tfidfRatio, double linkRatio) {
     this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
     this.db = mongoClient.getDatabase(database);
+    this.localSampleDataPath = localSampleDataPath;
     this.index = db.getCollection(indexCollection);
     this.rank = db.getCollection(rankCollection);
     this.tfidfRatio = tfidfRatio;
@@ -44,8 +46,8 @@ public class Tfidf {
     if (query == null)
       return;
 
-    double docCount = Util.fileCounter("wiki/en/articles/c/h");
-    String[] queries = query.split(" ");
+    double docCount = Util.fileCounter(localSampleDataPath);
+    String[] queries = prepareQueries(query);
     boolean calculateIdf = queries.length > 1;
     String filename = "";
     double tf = 1;
@@ -112,5 +114,18 @@ public class Tfidf {
 
     for (Page p : rankedPages)
       System.out.println(p.getName() + ": " + p.getRank());
+  }
+  
+  private String[] prepareQueries(String input) {
+	  if (input.length() == 0)
+		  return null;
+	  
+	  String[] queryArray = input.split(" ");
+	  
+	  for (int i = 0; i < queryArray.length; i++) {
+		  queryArray[i] = Util.stem(queryArray[i].toLowerCase());
+	  }
+	  
+	  return queryArray;
   }
 }

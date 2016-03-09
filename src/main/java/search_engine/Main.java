@@ -143,7 +143,7 @@ public class Main {
         System.exit(0);
       }
       Tfidf tfidf =
-          new Tfidf(mongoURL, database, indexCollection, rankCollection, tfidfRatio, linkRatio);
+          new Tfidf(mongoURL, database, localSampleDataPath, indexCollection, rankCollection, tfidfRatio, linkRatio);
       tfidf.rank(args[0]);
     }
   }
