@@ -1,0 +1,36 @@
+<!DOCTYPE>
+<html ng-app="myApp">
+<head>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+	<title>CDS Search Engine</title>
+</head>
+<body>
+	<div class="container" ng-controller="AppCtrl">
+		<div class="row">
+			<div class="col-md-12">
+				<h1>CDS Search Engine</h1>
+			</div>
+			<div class="col-md-12">
+				<input type="text" size="30" ng-model="searchquery"/>&nbsp;&nbsp;
+				<button class="btn btn-primary" ng-click="search()">Search</button>
+			</div>
+			<div class="col-md-12">
+				<h3>Results</h3>
+				<table class="table">
+					<tr ng-repeat="result in results">
+						<td>{{result.something}}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+	<script src="./controllers/controller.js"></script>
+</body>
+</html>
