@@ -1,0 +1,32 @@
+{
+  "name": "cds-search-engine",
+  "version": "1.0.0",
+  "description": "2016 Winter CS454 Search Engine Project",
+  "main": "server.js",
+  "dependencies": {
+    "async": "^1.5.2",
+    "body-parser": "^1.14.1",
+    "connect-flash": "^0.1.1",
+    "flash": "^1.1.0",
+    "mongojs": "^1.4.1",
+    "mongoose": "^4.4.6",
+    "morgan": "^1.7.0",
+    "session": "^0.1.0",
+    "stem-porter": "^0.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/c1rabbit/CS454-CDS.git"
+  },
+  "author": "Calvin, Di, Seung",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/c1rabbit/CS454-CDS/issues"
+  },
+  "homepage": "https://github.com/c1rabbit/CS454-CDS#readme"
+}
