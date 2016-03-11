@@ -18,8 +18,8 @@
 	
 	"runCrawl": false,
 	"runExtract": false,
-	"runIndex": false,
+	"runIndex": true,
 	"runLinkAnalysis": true,
 	"runDebugMode": false,
-	"runTfidf": true
+	"runTfidf": false
 }

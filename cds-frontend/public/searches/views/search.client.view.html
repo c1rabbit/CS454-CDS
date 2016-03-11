@@ -1,17 +1,20 @@
 <section>
 	<div class="container">
 		<div class="jumbotron">
-			<div class="col-md-12">
-				<input type="text" size="50" ng-model="query"/>&nbsp;&nbsp;
-				<input class="btn btn-primary" type="submit" value="search" ng-click="search()"/>
-			</div>
-			<br>
+			<form class="form-inline">
+				<div class="form-group">
+					<h3>search .. </h3>
+					<input class="form-control" size="40" placeholder="search query.." type="text" ng-model="query"/>
+					<input class="btn btn-primary" type="submit" value="search" ng-click="search()"/>
+				</div>
+			</form>
+			
 		</div>
 		<p ng-if="wait">please wait..</p>
 		<br>
 		<span ng-if="results">
 			<div class="col-md-12">
-				<h3>Showing Results For : {{searched_query}}</h3>
+				<h3>Showing Results For: "{{searched_query}}", {{results.length}} count(s)</h3>
 				<br>
 				<table class="table">
 					<thead>
