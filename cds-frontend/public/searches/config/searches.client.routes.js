@@ -7,6 +7,10 @@ angular.module('searches').config(['$routeProvider',
 			templateUrl: '/searches/views/home.client.view.html',
 			controller: 'SearchController'
 		}).
+		when('/search', {
+			templateUrl: '/searches/views/search.client.view.html',
+			controller: 'SearchController'
+		}).
 		otherwise({
 			redirectTo: '/'
 		});
