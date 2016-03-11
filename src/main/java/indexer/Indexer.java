@@ -24,8 +24,12 @@ import org.jsoup.select.Elements;
 import search_engine.Util;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -61,7 +65,52 @@ public class Indexer {
 
 	public void run() throws IOException {
 		visit(root);
+		bulkWrite();
 		closeConnection();
+	}
+
+	public void bulkWrite() {
+
+		// indexCollection.updateOne(new Document("term", stemmed), new
+		// Document(
+		// "$set", new Document("location", locationDocs))); //
+		// MongoClient mongoClient = new MongoClient(new ServerAddress(
+		// "localhost", 27017));
+		List<Document> docs = new LinkedList<Document>();
+		// List<DBObject> objects = new LinkedList<DBObject>();
+		for (Term t : terms) {
+			Document termDoc = new Document();
+			termDoc.append("term", t.getTerm());
+			List<Document> locations = new LinkedList<Document>();
+
+			for (Location l : t.getLocations()) {
+				Document locationDoc = new Document();
+				locationDoc.append("filename", l.getFilename());
+				locationDoc.append("index", l.getIndcies());
+				locations.add(locationDoc);
+			}
+			termDoc.append("location", locations);
+			docs.add(termDoc);
+		}
+
+		// DB db = this.mongoClient.getDB("cs454");
+		// MongoCollection<Document> collection =
+		// this.db.getCollection("index");
+		System.out.println(docs.size());
+		this.indexCollection.insertMany(docs);
+
+		// collection.initializeUnorderedBulkOperation();
+
+		// collection.;
+
+		// BulkWriteOperation bulk = new BulkWriteOperation(true, collection);
+		// bulk.execute();
+		// indexCollection.bulkWrite(requests, options)
+
+		// if word ends with comma or period, it means the word after is not
+		// related, so increment
+		// index
+
 	}
 
 	public void visit(File file) throws IOException {
@@ -186,7 +235,7 @@ public class Indexer {
 					term.addIndex(filename, n);
 					this.terms.add(term);
 
-					//System.out.println("new term: " + stemmed);
+					// System.out.println("new term: " + stemmed);
 				}
 
 				/*
@@ -236,26 +285,8 @@ public class Indexer {
 		// }
 
 		/*
-		 * indexCollection.updateOne(new Document("term", stemmed), new
-		 * Document("$set", new Document("location", locationDocs))); //
-		 * MongoClient mongoClient = new MongoClient(new
-		 * ServerAddress("localhost", 27017)); DB db =
-		 * mongoClient.getDB("cs454"); DBCollection collection =
-		 * db.getCollection("index");
-		 * collection.initializeUnorderedBulkOperation();
-		 */
-
-		// collection.;
-
-		// BulkWriteOperation bulk = new BulkWriteOperation(true, collection);
-		// bulk.execute();
-		// indexCollection.bulkWrite(requests, options)
-
-		// if word ends with comma or period, it means the word after is not
-		// related, so increment
-		// index
-		/*
-		 * if (word.matches(".*([.,])$")) n++; } else {
+		 * 
+		 * /* if (word.matches(".*([.,])$")) n++; } else {
 		 */
 		// if not a word - ex. numbers, special characters - just increment
 		// index
@@ -264,23 +295,17 @@ public class Indexer {
 		 */
 		// }
 
-		/*for (Term t : this.terms) {
-			if (t.getLocations().size() > 10) {
-				System.out.println("term: " + t.getTerm() + " "
-						+ t.getLocations().size());
-				for (Location l : t.getLocations()) {
-					// System.out.println("size: " + l.getIndcies().size());
-					System.out.println("location: " + l.getFilename() + " "
-							+ l.getIndcies().toString());
-					
-				}
-				System.out.println();
-			}
-		}*/
+		/*
+		 * for (Term t : this.terms) { if (t.getLocations().size() > 10) {
+		 * System.out.println("term: " + t.getTerm() + " " +
+		 * t.getLocations().size()); for (Location l : t.getLocations()) { //
+		 * System.out.println("size: " + l.getIndcies().size());
+		 * System.out.println("location: " + l.getFilename() + " " +
+		 * l.getIndcies().toString());
+		 * 
+		 * } System.out.println(); } }
+		 */
 
-		
-		
-		
 	}
 
 	public Document findFileDoc(ArrayList<Document> documents, String filename) {
