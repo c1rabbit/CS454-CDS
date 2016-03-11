@@ -17,7 +17,7 @@ module.exports = function() {
 	
 	app.use(flash());
 
-	require('./app/engine.server.routes.js')(app);
+	require('./app/searches.server.routes.js')(app);
 	
 	app.use(express.static('./public'));
 

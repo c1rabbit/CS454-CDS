@@ -1,14 +1,5 @@
-<!DOCTYPE>
+<!--<!DOCTYPE>
 <html ng-app="myApp">
-<head>
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-
-	<!-- Optional theme -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-
-	<title>CDS Search Engine</title>
-</head>
 <body>
 	<div class="container" ng-controller="AppCtrl">
 		<div class="row">
@@ -32,5 +23,50 @@
 
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
 	<script src="./controllers/controller.js"></script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org">
+<head>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+	<title>CDS Search Engine</title> 
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<ul class="nav navbar-nav">
+			<li><a href="/#!/">CS454 Search Engine</a></li>
+			<li><a href="/#/weather/">Show U.S</a></li>
+			<li><a href="/#/cities">Search Cities</a></li>
+		</ul>
+	</nav>
+	<br><br><br><br>
+
+	<!-- Render AngularJS views  -->
+	<section style="padding: 0px 10px 10px 10px" ng-view></section>
+
+	<!-- Angular Libraries -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-resource.min.js"></script>
+
+	<!-- for charts later
+	<script src="http://code.highcharts.com/highcharts.src.js"></script>
+	<script src="bower_components/highcharts-ng/dist/highcharts-ng.js"></script>  
+	-->
+
+	<!-- Load the search engine module -->
+	<script type="text/javascript" src="/searches/searches.client.module.js"></script>
+	<script type="text/javascript" src="/searches/controllers/searches.client.controller.js"></script>
+	<script type="text/javascript" src="/searches/services/searches.client.service.js"></script>
+	<script type="text/javascript" src="/searches/config/searches.client.routes.js"></script>
+
+	<!-- Bootstrap AngularJS application -->
+	<script type="text/javascript" src="/application.js"></script>
 </body>
 </html>

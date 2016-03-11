@@ -1,11 +1,11 @@
 'use strict';
 
-var engine = require('./engine.server.controller');
+var searches = require('./searches.server.controller');
 
 // calculate doCcount beforehand
-engine.documentCount();
+searches.documentCount();
 
 module.exports = function(app) {
 	app.route('/api/searchresults/:queries')
-	   .get(engine.search);
+	   .get(searches.search);
 };
