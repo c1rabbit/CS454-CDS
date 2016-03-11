@@ -1,7 +1,5 @@
 package indexer;
 
-import static java.util.Arrays.asList;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -10,244 +8,330 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 
 import org.bson.Document;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import search_engine.Util;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.client.FindIterable;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 public class Indexer {
-  private File root;
-  private MongoClient mongoClient;
-  private MongoDatabase db;
-  @SuppressWarnings("rawtypes")
-  private MongoCollection indexCollection;
-  @SuppressWarnings("rawtypes")
-  private MongoCollection outboundLinkCollection;
-  private Map<String, HashSet<String>> termLocations;
+	private File root;
+	private MongoClient mongoClient;
+	private MongoDatabase db;
+	@SuppressWarnings("rawtypes")
+	private MongoCollection indexCollection;
+	@SuppressWarnings("rawtypes")
+	private MongoCollection outboundLinkCollection;
+	private Map<String, HashSet<String>> termLocations;
 
-  public Indexer(String mongoURL, String database, String indexCollection,
-      String outboundLinkCollection, String path) throws UnknownHostException {
-    this.root = new File(path);
-    this.termLocations = new HashMap<>();
-    this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
-    this.db = mongoClient.getDatabase(database);
-    this.indexCollection = db.getCollection(indexCollection);
-    this.indexCollection.drop();
-    this.outboundLinkCollection = db.getCollection(outboundLinkCollection);
-    this.outboundLinkCollection.drop();
-  }
+	List<Term> terms = new LinkedList<Term>();// memory
 
-  public void closeConnection() {
-    mongoClient.close();
-    System.out.println("Indices created successfully.");
-  }
+	public Indexer(String mongoURL, String database, String indexCollection,
+			String outboundLinkCollection, String path)
+			throws UnknownHostException {
+		this.root = new File(path);
+		this.termLocations = new HashMap<>();
+		this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
+		this.db = mongoClient.getDatabase(database);
+		this.indexCollection = db.getCollection(indexCollection);
+		this.indexCollection.drop();
+		this.outboundLinkCollection = db.getCollection(outboundLinkCollection);
+		this.outboundLinkCollection.drop();
+	}
 
-  public void run() throws IOException {
-    visit(root);
-    closeConnection();
-  }
+	public void closeConnection() {
+		mongoClient.close();
+		System.out.println("Indices created successfully.");
+	}
 
-  public void visit(File file) throws IOException {
-    // Traversal referenced from 'tutorials point - Tika'
-    if (file.isDirectory()) {
-      String[] children = file.list();
-      for (int i = 0; i < children.length; i++) {
-        visit(new File(file, children[i]));
-      }
-    } else if (file.isFile() && file.length() > 0) {
-      org.jsoup.nodes.Document doc = Jsoup.parse(file, "utf-8");
+	public void run() throws IOException {
+		visit(root);
+		bulkWrite();
+		closeConnection();
+	}
 
-      // strip text out of document
-      String text = doc.text();
+	public void bulkWrite() {
 
-      // create outbound link index
-      makeOutboundLinkIndex(file.getName(), doc);
-      System.out.println("Outbound Link Index created for: " + file.getName());
+		// indexCollection.updateOne(new Document("term", stemmed), new
+		// Document(
+		// "$set", new Document("location", locationDocs))); //
+		// MongoClient mongoClient = new MongoClient(new ServerAddress(
+		// "localhost", 27017));
+		List<Document> docs = new LinkedList<Document>();
+		// List<DBObject> objects = new LinkedList<DBObject>();
+		for (Term t : terms) {
+			Document termDoc = new Document();
+			termDoc.append("term", t.getTerm());
+			List<Document> locations = new LinkedList<Document>();
 
-      // create index
-      System.out.println("Writing Index for: " + file.getName());
-      makeIndex(file.getName(), text);
-      System.out.println("Finished writing index for:  " + file.getName());
-    }
-  }
+			for (Location l : t.getLocations()) {
+				Document locationDoc = new Document();
+				locationDoc.append("filename", l.getFilename());
+				locationDoc.append("index", l.getIndcies());
+				locations.add(locationDoc);
+			}
+			termDoc.append("location", locations);
+			docs.add(termDoc);
+		}
 
-  @SuppressWarnings("unchecked")
-  public void makeOutboundLinkIndex(String filename, org.jsoup.nodes.Document doc) {
-    // get links
-    Elements links = doc.select("a");
-    Set<String> set = new HashSet<>();
+		// DB db = this.mongoClient.getDB("cs454");
+		// MongoCollection<Document> collection =
+		// this.db.getCollection("index");
+		System.out.println(docs.size());
+		this.indexCollection.insertMany(docs);
 
-    // get all outgoing links
-    for (Element link : links) {
-      String address = link.attr("href");
-      if (address.trim().length() > 0) {
-        int lastSlashIndex = address.lastIndexOf('/') + 1;
-        String linkname = address.substring(lastSlashIndex);
-        if (linkname.trim().length() > 0 && linkname.contains(".html")) {
-          try {
-            set.add(java.net.URLDecoder.decode(linkname, "UTF-8"));
-          } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-          }
-        }
-      }
-    }
+		// collection.initializeUnorderedBulkOperation();
 
-    Document mongodoc = new Document();
-    mongodoc.append("file", filename);
-    mongodoc.append("pages", set);
-    outboundLinkCollection.insertOne(mongodoc);
-  }
+		// collection.;
 
-  @SuppressWarnings("unchecked")
-  public void makeIndex(String filename, String text) {
-    Scanner scan = new Scanner(text);
-    int n = 0;
+		// BulkWriteOperation bulk = new BulkWriteOperation(true, collection);
+		// bulk.execute();
+		// indexCollection.bulkWrite(requests, options)
 
-    while (scan.hasNext()) {
-      String word = scan.next();
-      // if scanned word is composed of alphabetic characters and no numeric values
-      if (word.matches(".*\\w+.*") && !word.matches(".*\\d+.*")) {
+		// if word ends with comma or period, it means the word after is not
+		// related, so increment
+		// index
 
-        // lowercase and trim the word
-        word = word.toLowerCase().trim();
+	}
 
-        // if the word contains possessive get rid of it
-        if (word.contains("'s"))
-          word = word.replace("'s", "");
+	public void visit(File file) throws IOException {
+		// Traversal referenced from 'tutorials point - Tika'
+		if (file.isDirectory()) {
+			String[] children = file.list();
+			for (int i = 0; i < children.length; i++) {
+				visit(new File(file, children[i]));
+			}
+		} else if (file.isFile() && file.length() > 0) {
+			org.jsoup.nodes.Document doc = Jsoup.parse(file, "utf-8");
 
-        // trim all special characters
-        String trimmed = word.replaceAll("[^a-zA-Z-/]", "");
+			// strip text out of document
+			String text = doc.text();
 
-        Queue<String> queue = new LinkedList<>();
+			// create outbound link index
+			makeOutboundLinkIndex(file.getName(), doc);
+			System.out.println("Outbound Link Index created for: "
+					+ file.getName());
 
-        // a word might contain / or - like this: tax-deductible. Then split the words
-        if (trimmed.contains("/")) {
-          String[] splitSlash = trimmed.split("/");
-          for (String s : splitSlash) {
-            queue.add(s);
-          }
-        }
-        if (trimmed.contains("-")) {
-          String[] splitSlash = trimmed.split("-");
-          for (String s : splitSlash) {
-            queue.add(s);
-          }
-        }
+			// create index
+			System.out.println("Writing Index for: " + file.getName());
+			makeIndex(file.getName(), text);
+			System.out
+					.println("Finished writing index for:  " + file.getName());
+		}
+	}
 
-        // if the word doesn't contain / or -, then proceed
-        if (queue.isEmpty()) {
-          queue.add(trimmed);
-        }
+	@SuppressWarnings("unchecked")
+	public void makeOutboundLinkIndex(String filename,
+			org.jsoup.nodes.Document doc) {
+		// get links
+		Elements links = doc.select("a");
+		Set<String> set = new HashSet<>();
 
-        while (!queue.isEmpty()) {
-          String poll = queue.poll();
+		// get all outgoing links
+		for (Element link : links) {
+			String address = link.attr("href");
+			if (address.trim().length() > 0) {
+				int lastSlashIndex = address.lastIndexOf('/') + 1;
+				String linkname = address.substring(lastSlashIndex);
+				if (linkname.trim().length() > 0 && linkname.contains(".html")) {
+					try {
+						set.add(java.net.URLDecoder.decode(linkname, "UTF-8"));
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 
-          // if the word is not a single character and
-          if (poll.length() > 1 && !Util.isStopWord(poll)) {
-            String stemmed = Util.stem(poll);
+		Document mongodoc = new Document();
+		mongodoc.append("file", filename);
+		mongodoc.append("pages", set);
+		outboundLinkCollection.insertOne(mongodoc);
+	}
 
-            Document termDoc = new Document();
-            Document fileDoc = new Document();
-            ArrayList<Integer> indexes = new ArrayList<>();
+	@SuppressWarnings("unchecked")
+	public void makeIndex(String filename, String text) {
+		Scanner scan = new Scanner(text);
+		int n = 0;
 
-            // if index doesn't contain the word, make new
-            if (!termLocations.containsKey(stemmed)) {
-              // to keep track of terms
-              HashSet<String> set = new HashSet<>();
-              set.add(filename);
-              termLocations.put(stemmed, set);
+		List<BasicDBObject> toProcess = new LinkedList<BasicDBObject>();
 
-              indexes.add(n);
-              fileDoc.append("filename", filename);
-              fileDoc.append("index", indexes);
+		Queue<String> queue = new LinkedList<String>();
+		// queue words in doc
+		while (scan.hasNext()) {
+			String word = scan.next();
+			// if scanned word is composed of alphabetic characters and no
+			// numeric values
+			if (word.matches(".*\\w+.*") && !word.matches(".*\\d+.*")) {
 
-              termDoc.append("term", stemmed);
-              termDoc.append("location", asList(fileDoc));
-              indexCollection.insertOne(termDoc);
+				// lowercase and trim the word
+				word = word.toLowerCase().trim();
 
-              // if index does contain the word
-            } else {
-              FindIterable<Document> termIterable =
-                  indexCollection.find(new Document("term", stemmed));
-              termDoc = termIterable.first();
+				// if the word contains possessive get rid of it
+				if (word.contains("'s"))
+					word = word.replace("'s", "");
 
-              ArrayList<Document> locationDocs = (ArrayList<Document>) termDoc.get("location");
+				// trim all special characters
+				String trimmed = word.replaceAll("[^a-zA-Z-/]", "");
 
-              // for keeping track
-              HashSet<String> locations = termLocations.get(stemmed);
+				// Queue<String> queue = new LinkedList<>();
 
-              // if same file exists
-              if (locations.contains(filename)) {
-                fileDoc = findFileDoc(locationDocs, filename);
-                indexes = (ArrayList<Integer>) fileDoc.get("index");
-                indexes.add(n);
+				// a word might contain / or - like this: tax-deductible. Then
+				// split the words
+				if (trimmed.contains("/") || trimmed.contains("-")) {
+					String[] splitSlash = trimmed.split("/,-");
+					for (String s : splitSlash) {
+						queue.add(s);
+					}
+				} else {// if the word doesn't contain / or -, then proceed\
+					queue.add(trimmed);
+				}
+			}
+		}
 
-              } else {
-                locations.add(filename);
-                termLocations.put(stemmed, locations);
+		scan.close();
 
-                indexes.add(n);
-                fileDoc.append("filename", filename);
-                fileDoc.append("index", indexes);
-                locationDocs.add(fileDoc);
-              }
-              indexCollection.updateOne(new Document("term", stemmed), new Document("$set",
-                  new Document("location", locationDocs)));
-            }
-          }
-          n++;
-        }
+		// System.out.println(queue.toString());
+		while (!queue.isEmpty()) {
+			String word = queue.poll();
 
-        // if word ends with comma or period, it means the word after is not related, so increment
-        // index
-        if (word.matches(".*([.,])$"))
-          n++;
-      } else {
-        // if not a word - ex. numbers, special characters - just increment index
-        n++;
-      }
-    }
+			// if the word is not a single character and
+			if (word.length() > 1 && !Util.isStopWord(word)) {
+				String stemmed = Util.stem(word);
 
-    scan.close();
-  }
+				// Document termDoc = new Document();
+				// Document fileDoc = new Document();
+				// ArrayList<Integer> indexes = new ArrayList<>();
 
-  public Document findFileDoc(ArrayList<Document> documents, String filename) {
-    for (Document d : documents) {
-      if (d.get("filename").equals(filename)) {
-        return d;
-      }
-    }
-    return null;
-  }
+				boolean exists = false;
+				for (Term t : this.terms) {
+					if (t.getTerm().equalsIgnoreCase(stemmed)) {
+						t.addIndex(filename, n);
+						exists = true;
+						break;
+					}
+				}
+				if (!exists) {
+					Term term = new Term(stemmed);
+					term.addIndex(filename, n);
+					this.terms.add(term);
 
-  public static void printIndex(Map<String, Map<String, ArrayList<Integer>>> index) {
-    for (String word : index.keySet()) {
-      Map<String, ArrayList<Integer>> map = index.get(word);
-      System.out.println(word + ": ");
-      for (String file : map.keySet()) {
-        ArrayList<Integer> indexes = map.get(file);
-        System.out.println("at file: " + file);
+					// System.out.println("new term: " + stemmed);
+				}
 
-        for (int i : indexes) {
-          System.out.print(i + " ");
-        }
-        System.out.println();
-      }
-      System.out.println();
-    }
-  }
+				/*
+				 * /////////////////////////////////// // if index doesn't
+				 * contain the word, make new if
+				 * (!termLocations.containsKey(stemmed)) { // to keep track of
+				 * terms HashSet<String> set = new HashSet<>();
+				 * set.add(filename); termLocations.put(stemmed, set);
+				 * 
+				 * indexes.add(n); fileDoc.append("filename", filename);
+				 * fileDoc.append("index", indexes);
+				 * 
+				 * termDoc.append("term", stemmed); termDoc.append("location",
+				 * asList(fileDoc)); // indexCollection.insertOne(termDoc);
+				 * 
+				 * // if index does contain the word } else {
+				 * FindIterable<Document> termIterable =
+				 * indexCollection.find(new Document("term", stemmed)); termDoc
+				 * = termIterable.first();
+				 * 
+				 * ArrayList<Document> locationDocs = (ArrayList<Document>)
+				 * termDoc.get("location");
+				 * 
+				 * // for keeping track HashSet<String> locations =
+				 * termLocations.get(stemmed);
+				 * 
+				 * // if same file exists if (locations.contains(filename)) {
+				 * fileDoc = findFileDoc(locationDocs, filename); indexes =
+				 * (ArrayList<Integer>) fileDoc.get("index"); indexes.add(n);
+				 * 
+				 * } else { locations.add(filename); termLocations.put(stemmed,
+				 * locations);
+				 * 
+				 * indexes.add(n); fileDoc.append("filename", filename);
+				 * fileDoc.append("index", indexes); locationDocs.add(fileDoc);
+				 * }
+				 */
+
+				// write document
+				// indexCollection.updateOne(new Document("term", stemmed), new
+				// Document("$set",
+				// new Document("location", locationDocs)));
+			}
+			n++;
+		}
+
+		// }
+
+		/*
+		 * 
+		 * /* if (word.matches(".*([.,])$")) n++; } else {
+		 */
+		// if not a word - ex. numbers, special characters - just increment
+		// index
+		/*
+		 * n++; }
+		 */
+		// }
+
+		/*
+		 * for (Term t : this.terms) { if (t.getLocations().size() > 10) {
+		 * System.out.println("term: " + t.getTerm() + " " +
+		 * t.getLocations().size()); for (Location l : t.getLocations()) { //
+		 * System.out.println("size: " + l.getIndcies().size());
+		 * System.out.println("location: " + l.getFilename() + " " +
+		 * l.getIndcies().toString());
+		 * 
+		 * } System.out.println(); } }
+		 */
+
+	}
+
+	public Document findFileDoc(ArrayList<Document> documents, String filename) {
+		for (Document d : documents) {
+			if (d.get("filename").equals(filename)) {
+				return d;
+			}
+		}
+		return null;
+	}
+
+	public static void printIndex(
+			Map<String, Map<String, ArrayList<Integer>>> index) {
+		for (String word : index.keySet()) {
+			Map<String, ArrayList<Integer>> map = index.get(word);
+			System.out.println(word + ": ");
+			for (String file : map.keySet()) {
+				ArrayList<Integer> indexes = map.get(file);
+				System.out.println("at file: " + file);
+
+				for (int i : indexes) {
+					System.out.print(i + " ");
+				}
+				System.out.println();
+			}
+			System.out.println();
+		}
+	}
 }
