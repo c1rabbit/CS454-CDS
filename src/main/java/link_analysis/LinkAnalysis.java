@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -18,8 +16,8 @@ import com.mongodb.client.MongoDatabase;
 
 public class LinkAnalysis {
 	// private int threads = 1;
-	private Map<String, Object> outLinksCollection;
-	private Map<String, Object> inLinksCollection;
+	// private Map<String, Object> outLinksCollection;
+	// private Map<String, Object> inLinksCollection;
 	private int iteration_max;
 
 	private MongoClient mongoClient;
@@ -104,8 +102,8 @@ public class LinkAnalysis {
 		System.out.println("--retrieving out-links");
 		// }
 		// set new collection
-		inLinksCollection = new HashMap<String, Object>();
-		inLinksCollection.put("db", new LinkedList<Object>());
+		// inLinksCollection = new HashMap<String, Object>();
+		// inLinksCollection.put("db", new LinkedList<Object>());
 		buildInLinksCollection();
 		// run();
 	}
@@ -140,8 +138,6 @@ public class LinkAnalysis {
 		 */
 		System.out.println("--building in-links");
 		for (Page page : this.pages) {
-			String filename = page.getFilename();
-			List<String> outlinks = page.getOutlinks();
 			// System.out.println(filename);
 			// System.out.println("outlinks: " + outlinks.toString());
 			for (String link : page.getOutlinks()) {
