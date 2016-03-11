@@ -23,6 +23,7 @@ public class LinkAnalysis {
 	private MongoClient mongoClient;
 	private MongoDatabase db;
 	private MongoCollection<Document> outboundLinkCollection;
+	private long timestamp;
 
 	private MongoCollection<Document> rankCollection;
 	boolean debug;
@@ -34,6 +35,7 @@ public class LinkAnalysis {
 	public LinkAnalysis(String mongoURL, String database,
 			String outboundLinkCollection, String rankCollection,
 			int iterations, boolean debug) {
+		this.timestamp = System.currentTimeMillis();
 		this.debug = debug;
 		this.iteration_max = iterations;
 		System.out.println("connecting to db");
@@ -310,6 +312,10 @@ public class LinkAnalysis {
 		 * for (String s : scores.keySet()) { addRankIndex(s, scores.get(s)); }
 		 */
 		System.out.println("--Results recorded");
+		
+		long timeElapsed = System.currentTimeMillis() - this.timestamp;
+		System.out.println("Finished in: " + timeElapsed / 1000 / 60 + "min "
+				+ (timeElapsed / 1000) % 60 + "sec");
 
 	}
 
