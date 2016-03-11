@@ -1,0 +1,34 @@
+<section>
+	<div class="container">
+		<div class="jumbotron">
+			<form class="form-inline">
+				<div class="form-group">
+					<h3>search .. </h3>
+					<input class="form-control" size="40" placeholder="search query.." type="text" ng-model="query"/>
+					<input class="btn btn-primary" type="submit" value="search" ng-click="search()"/>
+				</div>
+			</form>
+			
+		</div>
+		<p ng-if="wait">please wait..</p>
+		<br>
+		<span ng-if="results">
+			<div class="col-md-12">
+				<h3>Showing Results For: "{{searched_query}}", {{results.length}} count(s)</h3>
+				<br>
+				<table class="table">
+					<thead>
+						<th width="50%">File Location</th>
+						<th width="50%">Ranking</th>
+					</thead>
+					<tbody>
+						<tr ng-repeat="result in results">
+							<td>{{result.filename}}</td>
+							<td>{{result.weight}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</span>
+	</div>
+</section>

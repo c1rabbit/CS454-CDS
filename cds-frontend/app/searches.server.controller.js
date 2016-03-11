@@ -19,6 +19,7 @@ exports.search = function(req, res){
 	var calculateIdf = queries.length > 1;
 	var idf;
 	var rankMap = {};
+	var results = [];
 	
 	db.index.find({term: { $in: queries}}, function(err, docs){
 		docs.forEach( function (doc, index){
@@ -58,22 +59,35 @@ exports.search = function(req, res){
 				var rank = Math.sqrt(linkrank*linkrank + tfidf*tfidf);
 				rankMap[filename] = rank;
 			})
-			console.log(rankMap);
+			
+			//
+			for (var filename in rankMap){
+				if (rankMap.hasOwnProperty(filename) && rankMap[filename]){
+					var file = {
+						'filename' : filename,
+						'weight' : rankMap[filename]
+					}
+					results.push(file);	
+				}
+			}
+			results.sort(compareFile);
+			res.json(results);
 		});
-
-
 	});
 }
 
-var documentCount = function (callback) {
+function compareFile(a, b){
+	return -(a.weight - b.weight);
+}
+
+function documentCount (callback) {
 	db.rankCollection.find(function (err, doc) {
 		callback(null, doc.length);
 	});
 }
 
-var parseAndStemQuery = function (input) {
+function parseAndStemQuery (input) {
 	var queryList = input.split(' ');
-
 	for (var i = 0; i < queryList.length; i++)
 		queryList[i] = stem(queryList[i].toLowerCase());
 

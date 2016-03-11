@@ -1,5 +1,5 @@
-<!DOCTYPE>
-<html ng-app="myApp">
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org">
 <head>
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -7,30 +7,37 @@
 	<!-- Optional theme -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
-	<title>CDS Search Engine</title>
+	<title>CDS Search Engine</title> 
 </head>
 <body>
-	<div class="container" ng-controller="AppCtrl">
-		<div class="row">
-			<div class="col-md-12">
-				<h1>CDS Search Engine</h1>
-			</div>
-			<div class="col-md-12">
-				<input type="text" size="30" ng-model="searchquery"/>&nbsp;&nbsp;
-				<button class="btn btn-primary" ng-click="search()">Search</button>
-			</div>
-			<div class="col-md-12">
-				<h3>Results</h3>
-				<table class="table">
-					<tr ng-repeat="result in results">
-						<td>{{rankMap}}</td>
-					</tr>
-				</table>
-			</div>
-		</div>
-	</div>
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<ul class="nav navbar-nav">
+			<li><a href="/#!/">CS454 Search Engine</a></li>
+			<li><a href="/#/search">Search</a></li>
+		</ul>
+	</nav>
+	<br><br><br><br>
 
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
-	<script src="./controllers/controller.js"></script>
+	<!-- Render AngularJS views  -->
+	<section style="padding: 0px 10px 10px 10px" ng-view></section>
+
+	<!-- Angular Libraries -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-resource.min.js"></script>
+
+	<!-- for charts later
+	<script src="http://code.highcharts.com/highcharts.src.js"></script>
+	<script src="bower_components/highcharts-ng/dist/highcharts-ng.js"></script>  
+	-->
+
+	<!-- Load the search engine module -->
+	<script type="text/javascript" src="/searches/searches.client.module.js"></script>
+	<script type="text/javascript" src="/searches/controllers/searches.client.controller.js"></script>
+	<script type="text/javascript" src="/searches/services/searches.client.service.js"></script>
+	<script type="text/javascript" src="/searches/config/searches.client.routes.js"></script>
+
+	<!-- Bootstrap AngularJS application -->
+	<script type="text/javascript" src="/application.js"></script>
 </body>
 </html>
