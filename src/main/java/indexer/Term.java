@@ -23,14 +23,14 @@ public class Term {
 		boolean exists = false;
 
 		for (Location l : this.locations) {
-			// update field
+			// update location index
 			if (l.getFilename().equalsIgnoreCase(filename)) {
 				l.addIndex(index);
 				exists = true;
 				break;
 			}
 		}
-		// insert new field
+		// insert new location with index
 		if (!exists) {
 			this.locations.add(new Location(filename, index));
 		}

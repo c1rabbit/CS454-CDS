@@ -14,9 +14,20 @@ public class Location {
 	}
 
 	public void addIndex(int index) {
-		if (!this.index.contains(index)) {
+		boolean exists = false;
+		for (int i : this.index) {
+			if (i == index) {
+				System.err.println("index already exists");
+				break;
+			}
+		}
+		if (!exists) {
 			this.index.add(index);
-		} else {
+		}
+		/*
+		 * if (!this.index.contains(index)) { this.index.add(index); //
+		 * System.out.println("index added"); }
+		 */else {
 			System.err.println("index already exists");
 		}
 	}
