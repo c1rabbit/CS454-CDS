@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,21 +16,14 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.bson.Document;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import search_engine.Util;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -37,19 +31,18 @@ public class Indexer {
 	private File root;
 	private MongoClient mongoClient;
 	private MongoDatabase db;
-	@SuppressWarnings("rawtypes")
-	private MongoCollection indexCollection;
-	@SuppressWarnings("rawtypes")
-	private MongoCollection outboundLinkCollection;
-	private Map<String, HashSet<String>> termLocations;
-
-	List<Term> terms = new LinkedList<Term>();// memory
+	private MongoCollection<Document> indexCollection;
+	private MongoCollection<Document> outboundLinkCollection;
+	private List<Term> terms; // memory
+	private long timestamp;
 
 	public Indexer(String mongoURL, String database, String indexCollection,
 			String outboundLinkCollection, String path)
 			throws UnknownHostException {
+		this.timestamp = System.currentTimeMillis();
+		this.terms = new LinkedList<Term>();
 		this.root = new File(path);
-		this.termLocations = new HashMap<>();
+		new HashMap<>();
 		this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
 		this.db = mongoClient.getDatabase(database);
 		this.indexCollection = db.getCollection(indexCollection);
@@ -66,11 +59,15 @@ public class Indexer {
 	public void run() throws IOException {
 		visit(root);
 		bulkWrite();
+		long timeElapsed = System.currentTimeMillis() - this.timestamp;
+		System.out.println("Finished in: " + timeElapsed / 1000 / 60 + "min "
+				+ (timeElapsed / 1000) % 60 + "sec");
+
 		closeConnection();
 	}
 
 	public void bulkWrite() {
-
+		System.out.println("Ready to Bulk Write");
 		// indexCollection.updateOne(new Document("term", stemmed), new
 		// Document(
 		// "$set", new Document("location", locationDocs))); //
@@ -98,7 +95,7 @@ public class Indexer {
 		// this.db.getCollection("index");
 		System.out.println(docs.size());
 		this.indexCollection.insertMany(docs);
-
+		System.out.println("Finished writing to db");
 		// collection.initializeUnorderedBulkOperation();
 
 		// collection.;
@@ -128,18 +125,16 @@ public class Indexer {
 
 			// create outbound link index
 			makeOutboundLinkIndex(file.getName(), doc);
-			System.out.println("Outbound Link Index created for: "
-					+ file.getName());
+			// System.out.println("Outbound Link Index created for: "
+			// + file.getName());
 
 			// create index
-			System.out.println("Writing Index for: " + file.getName());
+			// System.out.println("Writing Index for: " + file.getName());
 			makeIndex(file.getName(), text);
-			System.out
-					.println("Finished writing index for:  " + file.getName());
+			System.out.println("Finished:\t" + file.getName());
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void makeOutboundLinkIndex(String filename,
 			org.jsoup.nodes.Document doc) {
 		// get links
@@ -168,12 +163,9 @@ public class Indexer {
 		outboundLinkCollection.insertOne(mongodoc);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void makeIndex(String filename, String text) {
 		Scanner scan = new Scanner(text);
 		int n = 0;
-
-		List<BasicDBObject> toProcess = new LinkedList<BasicDBObject>();
 
 		Queue<String> queue = new LinkedList<String>();
 		// queue words in doc
