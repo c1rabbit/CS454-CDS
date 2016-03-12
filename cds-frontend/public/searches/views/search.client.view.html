@@ -1,5 +1,4 @@
-<!--<section data-ng-init="findQueryPool()">-->
-<section>
+<section data-ng-init="findQueryPool()">
 	<div class="container">
 		<div class="jumbotron">
 			
@@ -9,7 +8,8 @@
 				<form>
 					<div class="col-md-4">
 						<!--<autocomplete attr-placeholder="ex) dog and cat" attr-class="" attr-input-class="form-control" ng-model="query" data="queryPool"></autocomplete>-->
-						<input placeholder="ex) dog and cat" class="form-control" ng-model="query"></input>
+
+						<input type="text" placeholder="ex) dog and cat" class="form-control" ng-model="query"></input>
 					</div>
 					<div class="col-md-1">
 						<input class="btn btn-primary" type="submit" value="search" ng-click="search()"/>

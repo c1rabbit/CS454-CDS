@@ -16,7 +16,7 @@ angular.module('searches').controller('SearchController',
 		}
 
 		$scope.findQueryPool = function() {
-			$scope.queryPool = SearchService.query();
+			//$scope.queryPool = SearchService.query();
 		}
 	}
 ]);
