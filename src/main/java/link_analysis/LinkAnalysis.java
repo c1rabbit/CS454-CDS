@@ -308,9 +308,9 @@ public class LinkAnalysis {
 		// record results
 		for (Page p : pages) {
 			p.setScore(scores.get(p.getFilename()));
-		}/*
-		 * for (String s : scores.keySet()) { addRankIndex(s, scores.get(s)); }
-		 */
+		}
+		  for (String s : scores.keySet()) { addRankIndex(s, scores.get(s)); }
+		 
 		System.out.println("--Results recorded");
 		
 		long timeElapsed = System.currentTimeMillis() - this.timestamp;
