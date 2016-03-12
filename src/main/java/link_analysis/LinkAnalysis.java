@@ -278,10 +278,10 @@ public class LinkAnalysis {
 		}
 		String n = "";
 		double highest = 0.0;
-		double total = 0.0;
+		/*double total = 0.0;
 		for (String s : scores.keySet()) {
 			total += scores.get(s);
-		}
+		}*/
 
 		// normalize results
 		Map<String, Double> temp = new HashMap<String, Double>();
@@ -291,7 +291,7 @@ public class LinkAnalysis {
 				highest = scores.get(s);
 				n = s;
 			}
-			temp.put(s, scores.get(s) / total);
+			temp.put(s, scores.get(s) / highest);
 		}
 		System.out.println("--finished normalizing results");
 		scores = temp;
@@ -300,7 +300,7 @@ public class LinkAnalysis {
 		}
 
 		System.out.println("size:\t" + scores.size());
-		System.out.println("total raw sum:\t" + total);
+		System.out.println("max raw sum:\t" + highest);
 		System.out.println("highest ranked:\t" + n + "\t" + scores.get(n));
 
 		System.out.println("--Link Analysis completed");
