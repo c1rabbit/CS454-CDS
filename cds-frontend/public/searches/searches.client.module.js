@@ -1,1 +1,1 @@
-angular.module('searches', []);
+angular.module('searches', ['autocomplete']);

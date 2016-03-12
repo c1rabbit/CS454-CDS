@@ -12,7 +12,8 @@
     "mongoose": "^4.4.6",
     "morgan": "^1.7.0",
     "session": "^0.1.0",
-    "stem-porter": "^0.0.1"
+    "stem-porter": "^0.0.1",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {},
   "scripts": {

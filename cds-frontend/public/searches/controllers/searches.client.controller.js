@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('searches').controller('SearchController', 
-	['$scope', '$routeParams', '$location', 'SearchService', 
+	['$scope', '$routeParams', '$location', 'SearchService',
 	function($scope, $routeParams, $location, SearchService) {
 		$scope.wait = false;
 		$scope.search = function() {
@@ -13,6 +13,10 @@ angular.module('searches').controller('SearchController',
 			$scope.searched_query = $scope.query;
 			$location.path('search');
 			$scope.query = '';
+		}
+
+		$scope.findQueryPool = function() {
+			$scope.queryPool = SearchService.query();
 		}
 	}
 ]);

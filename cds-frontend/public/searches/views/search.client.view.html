@@ -1,20 +1,27 @@
+<!--<section data-ng-init="findQueryPool()">-->
 <section>
 	<div class="container">
 		<div class="jumbotron">
-			<form class="form-inline">
-				<div class="form-group">
-					<h3>search .. </h3>
-					<input class="form-control" size="40" placeholder="search query.." type="text" ng-model="query"/>
-					<input class="btn btn-primary" type="submit" value="search" ng-click="search()"/>
-				</div>
-			</form>
 			
+
+			<h3>search .. </h3>
+			<div class="row">
+				<form>
+					<div class="col-md-4">
+						<!--<autocomplete attr-placeholder="ex) dog and cat" attr-class="" attr-input-class="form-control" ng-model="query" data="queryPool"></autocomplete>-->
+						<input placeholder="ex) dog and cat" class="form-control" ng-model="query"></input>
+					</div>
+					<div class="col-md-1">
+						<input class="btn btn-primary" type="submit" value="search" ng-click="search()"/>
+					</div>
+				</form>
+			</div>
 		</div>
 		<p ng-if="wait">please wait..</p>
 		<br>
 		<span ng-if="results">
 			<div class="col-md-12">
-				<h3>Showing Results For: "{{searched_query}}", {{results.length}} count(s)</h3>
+				<h3>found {{results.length}} count(s): "{{searched_query}}"</h3>
 				<br>
 				<table class="table">
 					<thead>
