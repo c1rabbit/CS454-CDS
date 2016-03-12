@@ -21,83 +21,46 @@ exports.search = function(req, res){
 	//console.log(queryObj);
 
 	db.index.find({term: { $in: queryObj.queries.list}}, function(err, docs){
-		if (queryObj.queries.list.length == 1) searchOR(res, queryObj, docs);
-		else if (queryObj.queries.type === 'or') searchOR(res, queryObj, docs);
-		else if (queryObj.queries.type === 'and') searchAND(res, queryObj, docs);
-		else searchProx(res, queryObj, docs);
+		if (queryObj.queries.list.length == 1 || queryObj.queries.type === 'or') searchOR(docs, res);
+		else buildInvertedIndex(docs, res);
 	});
 }
 
-function compareFile(a, b){
-	return -(a.weight - b.weight);
-}
-
-function documentCount (callback) {
-	db.rankCollection.find(function (err, doc) {
-		callback(null, doc.length);
-	});
-}
-
-function parseAndStemQuery (input) {
-	var queries = {};
-	var list = input.split(' ');
-	queries.list = [];
-	var query;
-	for (var i = 0; i < list.length; i++){
-		query = stem(list[i].toLowerCase());
-		if (query == 'and' || query == 'or') {
-			queries.type = query;
-		} else {
-			queries.list.push(query);
-		}
-	}
-	return queries;
-}
-
-function searchOR(res, queryObj, docs){
+function searchOR(docs, res){
 	var term, locations, filename, indices;
 	var tfidf, temp;
 	queryObj.rankMap = {};
 	docs.forEach( function (doc, index){
 		term = doc.term;
 		locations = doc.location;
-			//console.log('term ' + term + ' has ' + locations.length + ' locations.');
-			//console.log(doc);
+		//console.log('term ' + term + ' has ' + locations.length + ' locations.');
+		//console.log(doc);
 			
-			locations.forEach( function (location, index){
-				filename = location.filename;
-				indices = location.index;
-				//console.log(term + ': ' + filename + ': ' + indices.length);
-				tfidf = calculateTfidf(indices.length, queryObj.calculateIdf, locations.length);
-				if (filename in queryObj.rankMap)
-					temp = queryObj.rankMap[filename] + tfidf;
-				else
-					temp = tfidf;
-				queryObj.rankMap[filename] = temp;
-			});
+		locations.forEach( function (location, index){
+			filename = location.filename;
+			indices = location.index;
+			//console.log(term + ': ' + filename + ': ' + indices.length);
+			tfidf = calculateTfidf(indices.length, queryObj.calculateIdf, locations.length);
+			if (filename in queryObj.rankMap)
+				temp = queryObj.rankMap[filename] + tfidf;
+			else
+				temp = tfidf;
+			queryObj.rankMap[filename] = temp;
 		});
+	});
 
 	//res.json(queryObj.rankMap);
-	combineLinkAnalysis(res, queryObj);
+	combineLinkAnalysis(res);
 }
 
-function searchProx(){
-
-}
-
-function calculateTfidf (frequency, calculateIdf, df){
-	var tf = Math.log10(1 + frequency);
-	var idf = calculateIdf ? Math.log10((docCount + 1) / df) : 1;
-	return tf * idf;
-}
-
-function searchAND(res, queryObj, docs){
+function buildInvertedIndex(docs, res){
 	var term, locations, filename, indices;
 	var temp;
-	var fileObj, termObj, terms, frequency;
+	var fileObj, termObj;
 	queryObj.rankMap = {};
 	queryObj.fileMap = {};
 	
+	// build inverse index
 	docs.forEach( function (doc, index){
 		term = doc.term;
 		locations = doc.location;
@@ -127,11 +90,15 @@ function searchAND(res, queryObj, docs){
 		});
 
 	});
-	//console.log(queryObj.fileMap);
+	
+	if (queryObj.queries.type === 'and') searchAND(res);
+	else searchProx(res);
+}
 
+function searchAND(res){
 	// initialize file object
-	fileObj = {};
-	var fkey, terms, termsCount, df, frequency;
+	var termObj, terms, frequency;
+	var fkey, fileObj, terms, termsCount, df, frequency;
 	var tfidf = 0;
 	// for each file
 	for (fkey in queryObj.fileMap){
@@ -153,38 +120,174 @@ function searchAND(res, queryObj, docs){
       		}
        	}
     }
-
-    //res.json(queryObj.rankMap);
-
-	combineLinkAnalysis(res, queryObj);
+    combineLinkAnalysis(res);
 }
 
-function combineLinkAnalysis(res, queryObj){
+function searchProx(res){
+	var fkey, fileObj, terms, termsCount;
+
+	for (fkey in queryObj.fileMap){
+		if (queryObj.fileMap.hasOwnProperty(fkey)) {
+			fileObj = queryObj.fileMap[fkey];
+			terms = fileObj.terms;
+			termsCount = terms.length;
+
+			// iterate through terms
+			var termFrequency = 0;
+			if (termsCount == queryObj.queries.list.length){
+				terms.forEach(function(termObj, index){
+					var term = termObj.term;
+					var indices = termObj.indices;
+					var df = termObj.locations_count;
+
+					var weight = 0;
+					// iterate through next terms
+					indices.forEach(function(i){
+
+						while (index < terms.length){
+							var otherTermObj = terms[index];
+							var otherIndices = otherTermObj.indices;
+
+							// if proximity matches, count phrase frequency
+							if (binaryProximitySearch(i, otherIndices) != -1){
+								termFrequency++;
+							}
+
+							index++;
+						}
+
+					});
+					// phrase frequency count is now done, store information
+					if (termFrequency > 0){
+						queryObj.rankMap[fkey] = termFrequency;
+					}
+
+				});
+			}
+		}
+	}
+
+	queryObj.rankMap = convertToTfidfFromFrequency(queryObj.rankMap);
+
+	combineLinkAnalysis(res);
+}
+
+function convertToTfidfFromFrequency(rankMap){
+	var df = countAttributes(rankMap);
+	for (var fkey in rankMap){
+		if (rankMap.hasOwnProperty(fkey)){
+			rankMap[fkey] = calculateTfidf(rankMap[fkey], true, df);
+		}
+	}
+	return rankMap;
+}
+
+function countAttributes(obj){
+	var count = 0;
+	for (var fkey in obj){
+		if (obj.hasOwnProperty(fkey)) count++
+	}
+	return count;
+}
+
+
+function binaryProximitySearch(value, array){
+  	var low = 0,
+    	high = array.length - 1,
+      	middle = Math.floor((low + high) /2 ),
+      	diff = 0;
+
+      
+  	while (low <= high){
+
+    	diff = array[middle] - value;
+	    // if near
+	    if ( diff === 1 | diff === -1){
+      	return array[middle];
+    	} else if (diff > 1){
+			high = middle - 1;
+	    } else if (diff < -1){
+			low = middle + 1;
+
+    	// if same (not possible. edge case)
+    	} else {
+	    	return -1;
+	    }
+	    middle = Math.floor((low + high)/2);
+  	}
+  	return -1;
+}
+
+function combineLinkAnalysis(res){
 	// multiply by link analysis
-	var results = [];
+
 	db.rankCollection.find({}, function (err, docs){
 		var filename, linkrank, tfidf, rank;
+
+		// for each document
 		docs.forEach( function (doc, index){
 			filename = doc.file;
 			linkrank = doc.rank;
 			tfidf = queryObj.rankMap[filename];
+
+			// calculate rank and store in rankMap
 			rank = Math.sqrt(linkrank*linkrank + tfidf*tfidf);
 			queryObj.rankMap[filename] = rank;
 		})
 		
-		var f;
-		for (f in queryObj.rankMap){
-			if (queryObj.rankMap.hasOwnProperty(f) && queryObj.rankMap[f]){
-				var file = {
-					'filename' : f,
-					'weight' : queryObj.rankMap[f]
-				}
-				results.push(file);	
-			}
-		}
+		// convert rankMap to json array to sort by rank values
+		var results = convertMapToArray(queryObj.rankMap);
 
+		// sort by ranking
 		results.sort(compareFile);
 		
 		res.json(results);
 	});
+}
+
+function convertMapToArray(rankMap){
+	var results = [];
+	var f;
+	for (f in rankMap){
+		if (rankMap.hasOwnProperty(f) && rankMap[f]){
+			var file = {
+				'filename' : f,
+				'weight' : rankMap[f]
+			}
+			results.push(file);	
+		}
+	}
+	return results;
+}
+
+function compareFile(a, b){
+	return -(a.weight - b.weight);
+}
+
+function documentCount (callback) {
+	db.rankCollection.find(function (err, doc) {
+		callback(null, doc.length);
+	});
+}
+
+function parseAndStemQuery (input) {
+	var queries = {};
+	var list = input.split(' ');
+	queries.list = [];
+	var query;
+	for (var i = 0; i < list.length; i++){
+		query = stem(list[i].toLowerCase());
+		if (query == 'and' || query == 'or') {
+			queries.type = query;
+		} else {
+			queries.list.push(query);
+		}
+	}
+	return queries;
+}
+
+function calculateTfidf (frequency, calculateIdf, df){
+	var tf = Math.log10(1 + frequency);
+	var idf = calculateIdf ? Math.log10((docCount + 1) / df) : 1;
+	return tf * idf;
 }
