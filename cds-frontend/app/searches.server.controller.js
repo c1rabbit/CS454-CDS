@@ -26,8 +26,7 @@ exports.prepareSearch = function(req, res){
 
 exports.search = function(req, res){
 	queryObj.queries = parseAndStemQuery(req.params.queries);
-	queryObj.calculateIdf = queryObj.queries.list.length > 1;
-
+	
 	//console.log(queryObj);
 
 	db.index.find({term: { $in: queryObj.queries.list}}, function(err, docs){
@@ -50,7 +49,7 @@ function searchOR(docs, res){
 			filename = location.filename;
 			indices = location.index;
 			//console.log(term + ': ' + filename + ': ' + indices.length);
-			tfidf = calculateTfidf(indices.length, queryObj.calculateIdf, locations.length);
+			tfidf = calculateTfidf(indices.length, locations.length);
 			if (filename in queryObj.rankMap)
 				temp = queryObj.rankMap[filename] + tfidf;
 			else
@@ -123,7 +122,7 @@ function searchAND(res){
        			terms.forEach( function(termObj,index){
        				df = termObj.locations_count;
        				frequency = termObj.indices.length;
-       				tfidf += calculateTfidf(frequency, true, df);
+       				tfidf += calculateTfidf(frequency, df);
        			});
        			
        			queryObj.rankMap[fkey] = tfidf;
@@ -186,7 +185,7 @@ function convertToTfidfFromFrequency(rankMap){
 	var df = countAttributes(rankMap);
 	for (var fkey in rankMap){
 		if (rankMap.hasOwnProperty(fkey)){
-			rankMap[fkey] = calculateTfidf(rankMap[fkey], true, df);
+			rankMap[fkey] = calculateTfidf(rankMap[fkey], df);
 		}
 	}
 	return rankMap;
@@ -296,8 +295,8 @@ function parseAndStemQuery (input) {
 	return queries;
 }
 
-function calculateTfidf (frequency, calculateIdf, df){
+function calculateTfidf (frequency, df){
 	var tf = Math.log10(1 + frequency);
-	var idf = calculateIdf ? Math.log10((docCount + 1) / df) : 1;
+	var idf = Math.log10((docCount + 1) / df);
 	return tf * idf;
 }
