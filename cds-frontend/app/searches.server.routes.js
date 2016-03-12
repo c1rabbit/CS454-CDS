@@ -6,6 +6,6 @@ var searches = require('./searches.server.controller');
 searches.documentCount();
 
 module.exports = function(app) {
-	app.route('/api/search/:queries')
-	   .get(searches.search);
+	app.route('/api/search/:queries').get(searches.search);
+	app.route('/api/search').get(searches.prepareSearch);
 };

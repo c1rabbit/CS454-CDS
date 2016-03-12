@@ -14,6 +14,16 @@ exports.documentCount = function (){
 	});	
 }
 
+exports.prepareSearch = function(req, res){
+	db.index.find({}, function(err, docs){
+		var pool = [];
+		docs.forEach(function(doc, index){
+			pool.push(doc.term);
+		})
+		res.json(pool);
+	})
+}
+
 exports.search = function(req, res){
 	queryObj.queries = parseAndStemQuery(req.params.queries);
 	queryObj.calculateIdf = queryObj.queries.list.length > 1;
