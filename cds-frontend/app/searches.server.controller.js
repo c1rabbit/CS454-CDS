@@ -205,7 +205,6 @@ function binaryProximitySearch(value, array){
     	high = array.length - 1,
       	middle = Math.floor((low + high) /2 ),
       	diff = 0;
-
       
   	while (low <= high){
 

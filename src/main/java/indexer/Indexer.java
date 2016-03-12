@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -33,14 +32,16 @@ public class Indexer {
 	private MongoDatabase db;
 	private MongoCollection<Document> indexCollection;
 	private MongoCollection<Document> outboundLinkCollection;
-	private List<Term> terms; // memory
+	private Map<String, Term> terms; // memory
+	//private Map<String, Term> termMap;
 	private long timestamp;
 
 	public Indexer(String mongoURL, String database, String indexCollection,
 			String outboundLinkCollection, String path)
 			throws UnknownHostException {
+		this.terms = new HashMap<String, Term>();
 		this.timestamp = System.currentTimeMillis();
-		this.terms = new LinkedList<Term>();
+	//	this.terms = new LinkedList<Term>();
 		this.root = new File(path);
 		new HashMap<>();
 		this.mongoClient = new MongoClient(new MongoClientURI(mongoURL));
@@ -75,7 +76,26 @@ public class Indexer {
 		// "localhost", 27017));
 		List<Document> docs = new LinkedList<Document>();
 		// List<DBObject> objects = new LinkedList<DBObject>();
-		for (Term t : terms) {
+		
+		for (String t : terms.keySet()) {
+			Document termDoc = new Document();
+			termDoc.append("term", t);
+			List<Document> locations = new LinkedList<Document>();
+			
+			
+
+			for (Location l : terms.get(t).getLocations()) {
+				Document locationDoc = new Document();
+				locationDoc.append("filename", l.getFilename());
+				locationDoc.append("index", l.getIndcies());
+				locations.add(locationDoc);
+			}
+			termDoc.append("location", locations);
+			docs.add(termDoc);
+		}
+		
+		
+		/*for (Term t : terms.) {
 			Document termDoc = new Document();
 			termDoc.append("term", t.getTerm());
 			List<Document> locations = new LinkedList<Document>();
@@ -88,7 +108,7 @@ public class Indexer {
 			}
 			termDoc.append("location", locations);
 			docs.add(termDoc);
-		}
+		}*/
 
 		// DB db = this.mongoClient.getDB("cs454");
 		// MongoCollection<Document> collection =
@@ -111,13 +131,17 @@ public class Indexer {
 	}
 
 	public void visit(File file) throws IOException {
+
 		// Traversal referenced from 'tutorials point - Tika'
 		if (file.isDirectory()) {
+
 			String[] children = file.list();
-			for (int i = 0; i < children.length; i++) {
-				visit(new File(file, children[i]));
+			for (String c : children) {
+				visit(new File(file, c));
 			}
+
 		} else if (file.isFile() && file.length() > 0) {
+
 			org.jsoup.nodes.Document doc = Jsoup.parse(file, "utf-8");
 
 			// strip text out of document
@@ -131,7 +155,9 @@ public class Indexer {
 			// create index
 			// System.out.println("Writing Index for: " + file.getName());
 			makeIndex(file.getName(), text);
+
 			System.out.println("Finished:\t" + file.getName());
+
 		}
 	}
 
@@ -215,7 +241,29 @@ public class Indexer {
 				// ArrayList<Integer> indexes = new ArrayList<>();
 
 				boolean exists = false;
-				for (Term t : this.terms) {
+
+				if (!this.terms.containsKey(stemmed)) {
+					
+					Term term = new Term(stemmed);
+					term.addIndex(filename, n);
+					this.terms.put(stemmed, term);
+					//this.terms.add(term);
+				}else{
+					this.terms.get(stemmed).addIndex(filename, n);
+					
+		
+					/*for (Term t : this.terms) {
+						if (t.getTerm().equalsIgnoreCase(stemmed)) {
+							t.addIndex(filename, n);
+							exists = true;
+							break;
+						}
+					}*/
+				}
+				
+				
+				//////
+				/*for (Term t : this.terms) {
 					if (t.getTerm().equalsIgnoreCase(stemmed)) {
 						t.addIndex(filename, n);
 						exists = true;
@@ -228,7 +276,7 @@ public class Indexer {
 					this.terms.add(term);
 
 					// System.out.println("new term: " + stemmed);
-				}
+				}*/
 
 				/*
 				 * /////////////////////////////////// // if index doesn't
