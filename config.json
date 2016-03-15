@@ -10,7 +10,7 @@
 	"outboundLinkCollection": "outboundLinks",
 	"rankCollection": "rankCollection",
 	
-	"localSampleDataPath": "wiki/en/articles/c/h/i",
+	"localSampleDataPath": "wiki",
 	"iterations": 3,
 	
 	"tfidfRatio": 1.0,
@@ -19,7 +19,7 @@
 	"runCrawl": false,
 	"runExtract": false,
 	"runIndex": false,
-	"runLinkAnalysis": false,
+	"runLinkAnalysis": true,
 	"runDebugMode": false,
-	"runTfidf": true
+	"runTfidf": false
 }
