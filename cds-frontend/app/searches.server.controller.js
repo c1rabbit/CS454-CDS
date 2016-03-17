@@ -7,6 +7,7 @@ var async = require('async');
 
 var docCount;
 var queryObj = {};
+var tfidfMax = 0;
 
 exports.documentCount = function (){
 	db.rankCollection.find(function (err, doc) {
@@ -25,9 +26,9 @@ exports.prepareSearch = function(req, res){
 }
 
 exports.search = function(req, res){
+	// reset tfidfMax
+	tfidfMax = 0;
 	queryObj.queries = parseAndStemQuery(req.params.queries);
-	
-	//console.log(queryObj);
 
 	db.index.find({term: { $in: queryObj.queries.list}}, function(err, docs){
 		if (queryObj.queries.list.length == 1 || queryObj.queries.type === 'or') searchOR(docs, res);
@@ -42,8 +43,6 @@ function searchOR(docs, res){
 	docs.forEach( function (doc, index){
 		term = doc.term;
 		locations = doc.location;
-		//console.log('term ' + term + ' has ' + locations.length + ' locations.');
-		//console.log(doc);
 			
 		locations.forEach( function (location, index){
 			filename = location.filename;
@@ -73,7 +72,6 @@ function buildInvertedIndex(docs, res){
 	docs.forEach( function (doc, index){
 		term = doc.term;
 		locations = doc.location;
-		//console.log('term ' + term + ' has ' + locations.length + ' locations.');
 			
 		locations.forEach( function (location, index){
 			fileObj = {};
@@ -84,7 +82,7 @@ function buildInvertedIndex(docs, res){
 				'indices' : indices,
 				'locations_count' : locations.length
 			};
-			//console.log(term + ': ' + filename + ': ' + indices.length);
+
 			if (queryObj.fileMap[filename]){
 				fileObj = queryObj.fileMap[filename];
 				fileObj.terms.push(termObj);
@@ -239,7 +237,9 @@ function combineLinkAnalysis(res){
 			tfidf = queryObj.rankMap[filename];
 
 			// calculate rank and store in rankMap
-			rank = Math.sqrt(linkrank*linkrank + tfidf*tfidf);
+			// rank = Math.sqrt(linkrank*linkrank + tfidf*tfidf);
+			rank = (tfidf / tfidfMax * 0.5) + (linkrank * 0.5);
+
 			queryObj.rankMap[filename] = rank;
 		})
 		
@@ -297,5 +297,10 @@ function parseAndStemQuery (input) {
 function calculateTfidf (frequency, df){
 	var tf = Math.log10(1 + frequency);
 	var idf = Math.log10((docCount + 1) / df);
-	return tf * idf;
+	var tfidf = tf * idf;
+
+	if (tfidf > tfidfMax)
+		tfidfMax = tfidf;
+
+	return tfidf;
 }
