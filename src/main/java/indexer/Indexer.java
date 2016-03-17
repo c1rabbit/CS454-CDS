@@ -3,8 +3,6 @@ package indexer;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,8 +72,6 @@ public class Indexer {
       termDoc.append("term", t);
       List<Document> locations = new LinkedList<Document>();
 
-
-
       for (Location l : terms.get(t).getLocations()) {
         Document locationDoc = new Document();
         locationDoc.append("filename", l.getFilename());
@@ -96,7 +92,7 @@ public class Indexer {
     // Traversal referenced from 'tutorials point - Tika'
     if (file.isDirectory()) {
       String[] children = file.list();
-      
+
       for (String c : children) {
         visit(new File(file, c));
       }
@@ -111,7 +107,7 @@ public class Indexer {
       makeOutboundLinkIndex(file, doc);
 
       // create index
-      makeIndex(file.getName(), text);
+      makeIndex(file, text);
 
       System.out.println("Finished:\t" + file.getName());
 
@@ -148,19 +144,13 @@ public class Indexer {
     }
 
     Document mongodoc = new Document();
-    mongodoc.append("file", file.getName());
-    // add uri of the page
-    try {
-      mongodoc.append("uri",
-          new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri")));
-    } catch (Exception e) {
-      System.err.println("Unable to read URI attribute!");
-    }
+    mongodoc.append("file", Util.getUri(file));
+    mongodoc.append("local", file.getName());
     mongodoc.append("pages", set);
     outboundLinkCollection.insertOne(mongodoc);
   }
 
-  public void makeIndex(String filename, String text) {
+  public void makeIndex(File file, String text) {
     Scanner scan = new Scanner(text);
     int n = 0;
 
@@ -197,7 +187,9 @@ public class Indexer {
 
     scan.close();
 
-    // System.out.println(queue.toString());
+    // add locations to terms
+    String fileUri = Util.getUri(file);
+    
     while (!queue.isEmpty()) {
       String word = queue.poll();
 
@@ -206,12 +198,11 @@ public class Indexer {
         String stemmed = Util.stem(word);
 
         if (!this.terms.containsKey(stemmed)) {
-
           Term term = new Term(stemmed);
-          term.addIndex(filename, n);
+          term.addIndex(fileUri, n);
           this.terms.put(stemmed, term);
         } else {
-          this.terms.get(stemmed).addIndex(filename, n);
+          this.terms.get(stemmed).addIndex(fileUri, n);
         }
       }
       n++;
