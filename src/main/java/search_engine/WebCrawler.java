@@ -8,11 +8,7 @@ package search_engine;
  * links
  */
 
-import java.io.FileOutputStream;
 import java.net.URI;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -54,7 +50,7 @@ public class WebCrawler {
         doc = Jsoup.connect(uri.getPath()).get();
         String newDomainName = Util.domainStripper(uri.getPath());
 
-        // create a random folder in data folder
+        // create a folder with domain name in data folder to hold the material from that domain
         if (!newDomainName.equals(oldDomainName)) {
           oldDomainName = newDomainName;
           dataFolder = "./" + downloadPath + "/" + newDomainName;
@@ -69,7 +65,7 @@ public class WebCrawler {
         Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "user:uri", uri.getPath()
             .getBytes());
 
-        // download the OTHER stuff
+        /* download the OTHER stuff
         Elements images = doc.select("img");
         for (Element i : images) {
           if (!i.absUrl("src").isEmpty()) {
@@ -83,7 +79,7 @@ public class WebCrawler {
                 Paths.get(dataFolder + "/" + Util.filenameStripper(i.absUrl("src"))), "user:uri",
                 uri.getPath().getBytes());
           }
-        }
+        }*/
 
         // queue links
         if (uri.getDepth() < depth) {
