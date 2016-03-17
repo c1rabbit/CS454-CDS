@@ -10,7 +10,7 @@
 	"outboundLinkCollection": "outboundLinks",
 	"rankCollection": "rankCollection",
 	
-	"localSampleDataPath": "wiki",
+	"localSampleDataPath": "data",
 	"iterations": 3,
 	
 	"tfidfRatio": 1.0,

@@ -9,6 +9,8 @@ package search_engine;
 import java.io.File;
 import java.io.FileReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Random;
 
@@ -136,5 +138,17 @@ public class Util {
     }
 
     return counter;
+  }
+  
+  public static String getUri(File file) {
+    String uri = "";
+    
+    try {
+      uri = new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
+    } catch (Exception e) {
+      System.err.println("Error extracting URI from file!");
+    }
+    
+    return uri;
   }
 }
