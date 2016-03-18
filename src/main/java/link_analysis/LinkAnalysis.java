@@ -78,7 +78,7 @@ public class LinkAnalysis {
 			// System.out.println(webpageList);
 			outLinksList.add(object);
 			
-			System.out.println((long) d.get("last-modified"));
+			//System.out.println((long) d.get("last-modified"));
 
 			Page page = new Page(d.get("file").toString());
 			page.setLastModified((long) d.get("last-modified"));

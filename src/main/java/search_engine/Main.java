@@ -77,27 +77,7 @@ public class Main {
       runTfidf = (boolean) config.get("runTfidf");
     } catch (Exception e) {
       System.err.println("Unable to locate config.json or parse parameters!");
-      // e.printStackTrace();
     }
-
-    // hw 2 parameter handling, overwrite config.json
-    // if (args.length > 0) { // if there are parameters, read from parameters
-    // for (int i = 0; i < args.length; i++) {
-    // if (args[i].equals("-d")) {
-    // if (args[i + 1] != null && Util.isNum(args[i + 1]) && args[i + 1].charAt(0) != '-') {
-    // depth = Integer.parseInt(args[i + 1]);
-    // i++;
-    // }
-    // } else if (args[i].equals("-u")) {
-    // if (args[i + 1] != null && args[i + 1].charAt(0) != '-') {
-    // uri = new URI(args[i + 1]);
-    // i++;
-    // }
-    // } else if (args[i].equals("-e")) {
-    // extract = true;
-    // }
-    // }
-    // }
 
     // run crawler if desired
     if (runCrawl) {
