@@ -1,5 +1,5 @@
 {
-	"uri": "http://samskim.com/",
+	"uri": "http://ocean.pcwerk.com/data/index.html",
 	"depth": "2",
 	"downloadPath": "./data",
 	
@@ -19,7 +19,7 @@
 	"runCrawl": false,
 	"runExtract": false,
 	"runIndex": false,
-	"runLinkAnalysis": true,
+	"runLinkAnalysis": false,
 	"runDebugMode": false,
 	"runTfidf": false
 }

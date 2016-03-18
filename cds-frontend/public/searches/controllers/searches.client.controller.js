@@ -4,8 +4,23 @@ angular.module('searches').controller('SearchController',
 	['$scope', '$routeParams', '$location', 'SearchService',
 	function($scope, $routeParams, $location, SearchService) {
 		$scope.wait = false;
+
+		var calculateLast  = function(timestamp){
+				var date = Date.now();
+				var diff = date - timestamp;
+				return diff;
+		}
+
 		$scope.search = function() {
+			
+			
+
+			$scope.last = 
+
 			$scope.wait = true;
+
+			
+
 			SearchService.query({ queries: $scope.query}, function(data){
 				$scope.results = data;
 				$scope.wait = false;
@@ -15,8 +30,12 @@ angular.module('searches').controller('SearchController',
 			$scope.query = '';
 		}
 
+		
+
 		$scope.findQueryPool = function() {
 			//$scope.queryPool = SearchService.query();
 		}
+
+
 	}
-]);
+	]);
