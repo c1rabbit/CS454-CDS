@@ -147,6 +147,7 @@ public class Indexer {
     mongodoc.append("file", Util.getUri(file));
     mongodoc.append("local", file.getName());
     mongodoc.append("pages", set);
+    mongodoc.append("last-modified", file.lastModified());
     outboundLinkCollection.insertOne(mongodoc);
   }
 
