@@ -77,8 +77,11 @@ public class LinkAnalysis {
 			// }
 			// System.out.println(webpageList);
 			outLinksList.add(object);
+			
+			System.out.println((long) d.get("last-modified"));
 
 			Page page = new Page(d.get("file").toString());
+			page.setLastModified((long) d.get("last-modified"));
 			page.setOutlinks((List<String>) d.get("pages"));
 			pages.add(page);
 		}
@@ -308,8 +311,12 @@ public class LinkAnalysis {
 		// record results
 		for (Page p : pages) {
 			p.setScore(scores.get(p.getFilename()));
+			
 		}
-		  for (String s : scores.keySet()) { addRankIndex(s, scores.get(s)); }
+		for (Page p: pages){
+			addRankIndex(p);
+		}
+		 // for (String s : scores.keySet()) { addRankIndex(s, scores.get(s)); }
 		 
 		System.out.println("--Results recorded");
 		
@@ -319,11 +326,12 @@ public class LinkAnalysis {
 
 	}
 
-	public void addRankIndex(String file, double rank) {
+	public void addRankIndex(Page page) {
 
 		Document mongodoc = new Document();
-		mongodoc.append("file", file);
-		mongodoc.append("rank", rank);
+		mongodoc.append("file", page.getFilename());
+		mongodoc.append("rank", page.getScore());
+	    mongodoc.append("last-modified",page.getLastModified());
 		rankCollection.insertOne(mongodoc);
 
 	}

@@ -5,16 +5,18 @@ import java.util.List;
 
 public class Page {
 
-	String filename;
-	List<String> inlinks;
-	List<String> outlinks;
-	double score;
+	private String filename;
+	private List<String> inlinks;
+	private List<String> outlinks;
+	private double score;
+	private long lastModified;
 
 	public Page(String filename) {
 		this.score = 0.0;
 		this.filename = filename;
 		this.inlinks = new LinkedList<String>();
 		this.outlinks = new LinkedList<String>();
+		this.lastModified = new Long(0);
 	}
 
 	public void addInlink(String link) {
@@ -43,6 +45,14 @@ public class Page {
 
 	public void setScore(double score) {
 		this.score = score;
+	}
+
+	public void setLastModified(long lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public long getLastModified() {
+		return this.lastModified;
 	}
 
 }
