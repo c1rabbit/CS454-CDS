@@ -228,7 +228,7 @@ function combineLinkAnalysis(res){
 	// multiply by link analysis
 
 	db.rankCollection.find({}, function (err, docs){
-		var filename, linkrank, tfidf, rank;
+		var filename, linkrank, tfidf, rank, tfidfScore, linkScore;
 
 		// for each document
 		docs.forEach( function (doc, index){
@@ -238,9 +238,17 @@ function combineLinkAnalysis(res){
 
 			// calculate rank and store in rankMap
 			// rank = Math.sqrt(linkrank*linkrank + tfidf*tfidf);
-			rank = (tfidf / tfidfMax * 0.5) + (linkrank * 0.5);
+			tfidfScore = tfidf / tfidfMax * 0.5;
+			linkScore = linkrank * 0.5;
+			rank = tfidfScore + linkScore;
 
-			queryObj.rankMap[filename] = rank;
+			var o = {
+				"tfidfScore": tfidfScore,
+				"linkScore": linkScore,
+				"rank": rank
+			}
+
+			queryObj.rankMap[filename] = o;
 		})
 		
 		// convert rankMap to json array to sort by rank values
@@ -257,10 +265,12 @@ function convertMapToArray(rankMap){
 	var results = [];
 	var f;
 	for (f in rankMap){
-		if (rankMap.hasOwnProperty(f) && rankMap[f]){
+		if (rankMap.hasOwnProperty(f) && rankMap[f].tfidfScore && rankMap[f].linkScore && rankMap[f].rank){
 			var file = {
 				'filename' : f,
-				'weight' : rankMap[f]
+				'tfidfScore' : rankMap[f].tfidfScore,
+				'linkScore' : rankMap[f].linkScore,
+				'rank' : rankMap[f].rank
 			}
 			results.push(file);	
 		}
@@ -269,7 +279,7 @@ function convertMapToArray(rankMap){
 }
 
 function compareFile(a, b){
-	return -(a.weight - b.weight);
+	return -(a.rank - b.rank);
 }
 
 function documentCount (callback) {
