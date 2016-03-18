@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class WebCrawler {
   private int depth;
@@ -34,18 +37,22 @@ public class WebCrawler {
   }
 
   public void run() {
-    for (int i = 0; i < threads; i++) {
-      Crawler c = new Crawler(paths, visited, downloadPath, depth);
-      c.start();
-      try {
-        Thread.sleep(1000);
-      } catch (Exception e) {
-        System.err.println("Failed to sleep for 1 second!");
-      }
+    boolean finished = false;
+
+    ExecutorService es = Executors.newCachedThreadPool();
+    for (int i = 0; i < threads; i++)
+      es.execute(new Crawler(paths, visited, downloadPath, depth));
+    es.shutdown();
+    try {
+      finished = es.awaitTermination(1, TimeUnit.MINUTES);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
-    
-    long timeElapsed = System.currentTimeMillis() - this.timestamp;
-    System.out.println("Finished in: " + timeElapsed / 1000 / 60 + " min " + (timeElapsed / 1000)
-        % 60 + " sec");
+
+    if (finished) {
+      long timeElapsed = System.currentTimeMillis() - this.timestamp;
+      System.out.println("Finished in: " + timeElapsed / 1000 / 60 + " min " + (timeElapsed / 1000)
+          % 60 + " sec");
+    }
   }
 }

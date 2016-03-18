@@ -53,13 +53,13 @@ public class Crawler extends Thread implements Runnable {
         Files.write(Paths.get(dataFolder + "/" + randomName), doc.html().getBytes());
         Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "user:uri", uri.getPath()
             .getBytes());
-     // set last modified date if any in long
-		URL url = new URL(uri.getPath());
-		URLConnection connection = url.openConnection();
-		// System.out.println(connection.getLastModified());
-		long modified = connection.getLastModified();
-		Files.setAttribute(Paths.get(dataFolder + "/" + randomName),
-				"basic:lastModifiedTime", FileTime.fromMillis(modified));
+        // set last modified date if any in long
+        URL url = new URL(uri.getPath());
+        URLConnection connection = url.openConnection();
+        // System.out.println(connection.getLastModified());
+        long modified = connection.getLastModified();
+        Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "basic:lastModifiedTime",
+            FileTime.fromMillis(modified));
 
         // queue links
         if (uri.getDepth() < depth) {
