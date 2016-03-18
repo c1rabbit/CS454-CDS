@@ -3,7 +3,7 @@
 		<div class="jumbotron">
 			
 
-			<h3>search .. </h3>
+			<h3>Search</h3>
 			<div class="row">
 				<form>
 					<div class="col-md-4">
@@ -17,7 +17,7 @@
 				</form>
 			</div>
 		</div>
-		<p ng-if="wait">please wait..</p>
+		<p ng-if="wait">please wait...</p>
 		<br>
 		<span ng-if="results">
 			<div class="col-md-12">
@@ -25,13 +25,17 @@
 				<br>
 				<table class="table">
 					<thead>
-						<th width="50%">File Location</th>
-						<th width="50%">Ranking</th>
+						<th width="55%">Results</th>
+						<th width="15%">Ranking</th>
+						<th width="15%">Tfidf</th>
+						<th width="15%">Link Analysis</th>
 					</thead>
 					<tbody>
 						<tr ng-repeat="result in results">
 							<td><a href="{{result.filename}}">{{result.filename}}</a></td>
-							<td>{{result.weight}}</td>
+							<td>{{result.rank}}</td>
+							<td>{{result.tfidfScore}}</td>
+							<td>{{result.linkScore}}</td>
 						</tr>
 					</tbody>
 				</table>
