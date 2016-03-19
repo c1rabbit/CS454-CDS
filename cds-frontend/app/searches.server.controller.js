@@ -125,6 +125,7 @@ function searchAND(res){
        				df = termObj.locations_count;
        				frequency = termObj.indices.length;
        				tfidf += calculateTfidf(frequency, df);
+       				if (tfidf > tfidfMax) tfidfMax = tfidf;
        			});
        			
        			queryObj.rankMap[fkey] = tfidf;
