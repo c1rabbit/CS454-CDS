@@ -24,15 +24,17 @@ public class WebCrawler {
   private String downloadPath;
   private int threads;
   private long timestamp;
+  private int waitTime;
 
-  public WebCrawler(URI uri, int depth, List<WebPath> paths, String downloadPath) {
+  public WebCrawler(URI uri, int depth, List<WebPath> paths, String downloadPath, int threads, int waitTime) {
     this.depth = depth;
     this.paths = Collections.synchronizedList(paths);
     this.downloadPath = downloadPath;
     paths.add(new WebPath(uri.toString(), 0));
     System.out.println("Root URI:\t" + uri.toString());
     this.visited = Collections.synchronizedSet(new HashSet<>());
-    threads = 8;
+    this.threads = threads;
+    this.waitTime = waitTime;
     this.timestamp = System.currentTimeMillis();
   }
 
@@ -44,7 +46,7 @@ public class WebCrawler {
       es.execute(new Crawler(paths, visited, downloadPath, depth));
     es.shutdown();
     try {
-      finished = es.awaitTermination(1, TimeUnit.MINUTES);
+      finished = es.awaitTermination(waitTime, TimeUnit.MINUTES);
     } catch (Exception e) {
       e.printStackTrace();
     }
