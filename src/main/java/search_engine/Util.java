@@ -77,9 +77,15 @@ public class Util {
 
   // domain name stripper
   public static String domainStripper(String uri) {
-    return uri.split("/")[2];
+    String[] array = uri.split("/");
+    return array[2];
   }
-
+  
+  public static String subFolderStripper(String uri) {
+    int index = uri.lastIndexOf("/");
+    return uri.substring(0, index);
+  }
+  
   // filename stripper
   public static String filenameStripper(String uri) {
     String[] output = uri.split("/");

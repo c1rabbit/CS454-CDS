@@ -61,13 +61,16 @@ public class LinkAnalysis {
 
 		// build outlinks
 		FindIterable<Document> iterable = this.outboundLinkCollection.find();
+		
 		Iterator<Document> iterator = iterable.iterator();
+		
 		List<Object> outLinksList = new LinkedList<Object>();
 		while (iterator.hasNext()) {
-
+		    
 			Map<String, Object> object = new HashMap<String, Object>();
 
 			Document d = iterator.next();
+			
 			// List<String> webpageList = (List<String>) d.get("pages");
 			object.put("name", d.get("file").toString());
 			object.put("links", d.get("pages"));
@@ -78,7 +81,7 @@ public class LinkAnalysis {
 			// System.out.println(webpageList);
 			outLinksList.add(object);
 			
-			//System.out.println((long) d.get("last-modified"));
+//			System.out.println((long) d.get("last-modified"));
 
 			Page page = new Page(d.get("file").toString());
 			page.setLastModified((long) d.get("last-modified"));

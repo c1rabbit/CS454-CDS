@@ -3,6 +3,8 @@ package indexer;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -136,8 +138,15 @@ public class Indexer {
       // }
       try {
         String absUrl = java.net.URLDecoder.decode(link.absUrl("href"), "UTF-8");
-        if (absUrl != null && !absUrl.equals(""))
-          set.add(absUrl);
+        
+        if (absUrl != null && !absUrl.equals("")){
+          
+        }else{
+          String domain = new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
+          absUrl = Util.subFolderStripper(domain) + "/" + link.attr("href");
+        }
+        set.add(absUrl);
+          
       } catch (Exception e) {
         System.err.println("Failed to read link: " + link.absUrl("href"));
       }
