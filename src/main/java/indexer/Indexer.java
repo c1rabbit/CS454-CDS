@@ -140,13 +140,13 @@ public class Indexer {
         String absUrl = java.net.URLDecoder.decode(link.absUrl("href"), "UTF-8");
         
         if (absUrl != null && !absUrl.equals("")){
-          
+            set.add(absUrl);
         }else{
-          String domain = new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
-          absUrl = Util.subFolderStripper(domain) + "/" + link.attr("href");
+            String domain = new String((byte[]) Files.getAttribute(Paths.get(file.getPath()), "user:uri"));
+            absUrl = Util.subFolderStripper(domain) + "/" + link.attr("href");
+            set.add(absUrl);
         }
-        set.add(absUrl);
-          
+        
       } catch (Exception e) {
         System.err.println("Failed to read link: " + link.absUrl("href"));
       }

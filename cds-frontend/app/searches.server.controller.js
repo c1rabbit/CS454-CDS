@@ -47,7 +47,6 @@ function searchOR(docs, res){
 	docs.forEach( function (doc, index){
 		term = doc.term;
 		locations = doc.location;
-			
 		locations.forEach( function (location, index){
 			filename = location.filename;
 			indices = location.index;
@@ -58,6 +57,7 @@ function searchOR(docs, res){
 			else
 				temp = tfidf;
 			queryObj.rankMap[filename] = temp;
+
 		});
 	});
 
@@ -125,6 +125,7 @@ function searchAND(res){
        				df = termObj.locations_count;
        				frequency = termObj.indices.length;
        				tfidf += calculateTfidf(frequency, df);
+       				if (tfidf > tfidfMax) tfidfMax = tfidf;
        			});
        			
        			queryObj.rankMap[fkey] = tfidf;
@@ -237,30 +238,33 @@ function combineLinkAnalysis(res){
 		// for each document
 		docs.forEach( function (doc, index){
 			filename = doc.file;
-			linkrank = doc.rank;
-			lastmodified = doc['last-modified'];
-			tfidf = queryObj.rankMap[filename];
+			if (queryObj.rankMap[filename]){
+				linkrank = doc.rank;
+				lastmodified = doc['last-modified'];
+				tfidf = queryObj.rankMap[filename];
 
+				// calculate rank and store in rankMap
+				// rank = Math.sqrt(linkrank*linkrank + tfidf*tfidf);
+				tfidfScore = tfidf / tfidfMax * 0.45;
 
+				linkScore = linkrank * 0.45;
 
-			// calculate rank and store in rankMap
-			// rank = Math.sqrt(linkrank*linkrank + tfidf*tfidf);
-			tfidfScore = tfidf / tfidfMax * 0.45;
-			linkScore = linkrank * 0.45;
-			freshRatio = (lastmodified - fiveyears) / (now - fiveyears);
-			freshness = (freshRatio > 0) ? freshRatio * 0.1 : 0;
-			rank = tfidfScore + linkScore + freshness;
+				// freshness - if a page 5 years old, then give 0
+				freshRatio = (lastmodified - fiveyears) / (now - fiveyears);
+				freshness = (freshRatio > 0) ? freshRatio * 0.1 : 0;
+				rank = tfidfScore + linkScore + freshness;
 
-			var o = {
-				"tfidfScore": tfidfScore,
-				"linkScore": linkScore,
-				"freshness": freshness,
-				"rank": rank
+				var o = {
+					"tfidfScore": tfidfScore,
+					"linkScore": linkScore,
+					"freshness": freshness,
+					"rank": rank
+				}
+				queryObj.rankMap[filename] = o;
 			}
 
-			queryObj.rankMap[filename] = o;
 		})
-		
+		console.log(queryObj);
 		// convert rankMap to json array to sort by rank values
 		var results = convertMapToArray(queryObj.rankMap);
 
@@ -275,8 +279,7 @@ function convertMapToArray(rankMap){
 	var results = [];
 	var f;
 	for (f in rankMap){
-		if (rankMap.hasOwnProperty(f) && rankMap[f].tfidfScore && rankMap[f].linkScore 
-			&& rankMap[f].rank && rankMap[f].freshness){
+		if (rankMap.hasOwnProperty(f) && rankMap[f].tfidfScore){
 			var file = {
 				'filename' : f,
 				'tfidfScore' : rankMap[f].tfidfScore,
