@@ -35,12 +35,15 @@ public class Main {
     int iterations = 3;
     double tfidfRatio = 1.0;
     double linkRatio = 1.5;
-
+    int waitTime = 20;
+    int threads = 8;
+        
     // legacy parameters
     int depth = 2;
     // String baseCollection = "hw2";
     URI uri = new URI("http://samskim.com/");
 
+    
     // component booleans
     boolean runCrawl = false;
     boolean runExtract = false;
@@ -48,7 +51,7 @@ public class Main {
     boolean runDebugMode = false;
     boolean runLinkAnalysis = false;
     boolean runTfidf = false;
-
+    
     // new parameter handling (always read from config.json)
     try {
       JSONObject config = Util.jsonParser(configLocation);
@@ -62,7 +65,9 @@ public class Main {
       iterations = Integer.parseInt(config.get("iterations").toString());
       tfidfRatio = Double.parseDouble(config.get("tfidfRatio").toString());
       linkRatio = Double.parseDouble(config.get("linkRatio").toString());
-
+      threads = Integer.parseInt(config.get("threads").toString());
+      waitTime = Integer.parseInt(config.get("waitTime").toString());
+    
       // legacy parameters
       depth = Integer.parseInt((String) config.get("depth"));
       // baseCollection = (String) config.get("baseCollection");
@@ -75,6 +80,7 @@ public class Main {
       runDebugMode = (boolean) config.get("runDebugMode");
       runLinkAnalysis = (boolean) config.get("runLinkAnalysis");
       runTfidf = (boolean) config.get("runTfidf");
+      
     } catch (Exception e) {
       System.err.println("Unable to locate config.json or parse parameters!");
     }
@@ -88,7 +94,7 @@ public class Main {
         System.out.println("Folder deleted!");
 
       Util.createDir(downloadPath);
-      WebCrawler crawler = new WebCrawler(uri, depth, paths, downloadPath);
+      WebCrawler crawler = new WebCrawler(uri, depth, paths, downloadPath, threads, waitTime);
       crawler.run();
       System.out.println("Finished Crawling");
     }

@@ -16,10 +16,13 @@
 	"tfidfRatio": 1.0,
 	"linkRatio": 1.5,
 	
-	"runCrawl": false,
+	"threads": 16,
+	"waitTime": 20,
+	
+	"runCrawl": true,
 	"runExtract": false,
-	"runIndex": false,
-	"runLinkAnalysis": false,
+	"runIndex": true,
+	"runLinkAnalysis": true,
 	"runDebugMode": false,
 	"runTfidf": false
 }
