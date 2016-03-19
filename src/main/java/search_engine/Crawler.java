@@ -16,13 +16,13 @@ import org.jsoup.select.Elements;
 public class Crawler extends Thread implements Runnable {
   private List<WebPath> paths;
   private Set<Object> visited;
-  private String downloadPath;
+  private String dataFolder;
   private int depth;
 
   public Crawler(List<WebPath> paths, Set<Object> visited, String downloadPath, int depth) {
     this.paths = paths;
     this.visited = visited;
-    this.downloadPath = downloadPath;
+    this.dataFolder = "./" + downloadPath + "/";
     this.depth = depth;
   }
 
@@ -31,8 +31,6 @@ public class Crawler extends Thread implements Runnable {
     // breadth first search
     while (!paths.isEmpty()) {
       WebPath uri = paths.get(0);
-      String oldDomainName = "";
-      String dataFolder = "";
 
       uri = paths.get(0); // reset pointer
       Document doc = new Document("temp");
@@ -40,25 +38,17 @@ public class Crawler extends Thread implements Runnable {
 
       try {
         doc = Jsoup.connect(uri.getPath()).get();
-        String newDomainName = Util.domainStripper(uri.getPath());
 
-        // create a folder with domain name in data folder to hold the material from that domain
-        if (!newDomainName.equals(oldDomainName)) {
-          oldDomainName = newDomainName;
-          dataFolder = "./" + downloadPath + "/" + newDomainName;
-          Util.createDir(dataFolder);
-        }
-
-        String randomName = Util.randomString() + ".html";
-        Files.write(Paths.get(dataFolder + "/" + randomName), doc.html().getBytes());
-        Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "user:uri", uri.getPath()
+        String randomName = Util.filenameStripper(uri.getPath());
+        Files.write(Paths.get(dataFolder + randomName), doc.html().getBytes());
+        Files.setAttribute(Paths.get(dataFolder + randomName), "user:uri", uri.getPath()
             .getBytes());
+        
         // set last modified date if any in long
         URL url = new URL(uri.getPath());
         URLConnection connection = url.openConnection();
-        // System.out.println(connection.getLastModified());
         long modified = connection.getLastModified();
-        Files.setAttribute(Paths.get(dataFolder + "/" + randomName), "basic:lastModifiedTime",
+        Files.setAttribute(Paths.get(dataFolder + randomName), "basic:lastModifiedTime",
             FileTime.fromMillis(modified));
 
         // queue links
