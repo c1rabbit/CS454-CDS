@@ -23,19 +23,22 @@
 			<div class="col-md-12">
 				<h3>found {{results.length}} count(s): "{{searched_query}}"</h3>
 				<br>
+				<p>{{}}</p>
 				<table class="table">
 					<thead>
-						<th width="55%">Results</th>
-						<th width="15%">Ranking</th>
-						<th width="15%">Tfidf</th>
-						<th width="15%">Link Analysis</th>
+						<th width="60%">Results</th>
+						<th width="10%">Ranking</th>
+						<th width="10%">Tfidf</th>
+						<th width="10%">Link Analysis</th>
+						<th width="10%">Freshness</th>
 					</thead>
 					<tbody>
-						<tr ng-repeat="result in results">
+						<tr data-ng-repeat="result in results | limitTo: 5">
 							<td><a href="{{result.filename}}">{{result.filename}}</a></td>
-							<td>{{result.rank}}</td>
-							<td>{{result.tfidfScore}}</td>
-							<td>{{result.linkScore}}</td>
+							<td>{{result.rank | number : 4}}</td>
+							<td>{{result.tfidfScore | number : 4}}</td>
+							<td>{{result.linkScore | number : 4}}</td>
+							<td>{{result.freshness | number : 4}}</td>
 						</tr>
 					</tbody>
 				</table>

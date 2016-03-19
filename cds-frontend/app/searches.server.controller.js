@@ -8,11 +8,13 @@ var async = require('async');
 var docCount;
 var queryObj = {};
 var tfidfMax = 0;
+var now, fiveyears;
 
 exports.documentCount = function (){
 	db.rankCollection.find(function (err, doc) {
 		docCount = doc.length;
 	});	
+	
 }
 
 exports.prepareSearch = function(req, res){
@@ -28,6 +30,8 @@ exports.prepareSearch = function(req, res){
 exports.search = function(req, res){
 	// reset tfidfMax
 	tfidfMax = 0;
+	now = Date.now();
+	fiveyears = now - (5 * 12 * 30 * 24 * 60 * 60 * 1000);
 	queryObj.queries = parseAndStemQuery(req.params.queries);
 
 	db.index.find({term: { $in: queryObj.queries.list}}, function(err, docs){
@@ -228,23 +232,29 @@ function combineLinkAnalysis(res){
 	// multiply by link analysis
 
 	db.rankCollection.find({}, function (err, docs){
-		var filename, linkrank, tfidf, rank, tfidfScore, linkScore;
+		var filename, linkrank, lastmodified, tfidf, rank, tfidfScore, linkScore, freshness, freshRatio;
 
 		// for each document
 		docs.forEach( function (doc, index){
 			filename = doc.file;
 			linkrank = doc.rank;
+			lastmodified = doc['last-modified'];
 			tfidf = queryObj.rankMap[filename];
+
+
 
 			// calculate rank and store in rankMap
 			// rank = Math.sqrt(linkrank*linkrank + tfidf*tfidf);
-			tfidfScore = tfidf / tfidfMax * 0.5;
-			linkScore = linkrank * 0.5;
-			rank = tfidfScore + linkScore;
+			tfidfScore = tfidf / tfidfMax * 0.45;
+			linkScore = linkrank * 0.45;
+			freshRatio = (lastmodified - fiveyears) / (now - fiveyears);
+			freshness = (freshRatio > 0) ? freshRatio * 0.1 : 0;
+			rank = tfidfScore + linkScore + freshness;
 
 			var o = {
 				"tfidfScore": tfidfScore,
 				"linkScore": linkScore,
+				"freshness": freshness,
 				"rank": rank
 			}
 
@@ -265,11 +275,13 @@ function convertMapToArray(rankMap){
 	var results = [];
 	var f;
 	for (f in rankMap){
-		if (rankMap.hasOwnProperty(f) && rankMap[f].tfidfScore && rankMap[f].linkScore && rankMap[f].rank){
+		if (rankMap.hasOwnProperty(f) && rankMap[f].tfidfScore && rankMap[f].linkScore 
+			&& rankMap[f].rank && rankMap[f].freshness){
 			var file = {
 				'filename' : f,
 				'tfidfScore' : rankMap[f].tfidfScore,
 				'linkScore' : rankMap[f].linkScore,
+				'freshness' : rankMap[f].freshness,
 				'rank' : rankMap[f].rank
 			}
 			results.push(file);	
