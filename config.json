@@ -1,5 +1,5 @@
 {
-	"uri": "http://ocean.pcwerk.com/data/index.html",
+	"uri": "http://ocean.pcwerk.com/data/",
 	"depth": "2",
 	"downloadPath": "./data",
 	
@@ -19,7 +19,7 @@
 	"threads": 16,
 	"waitTime": 20,
 	
-	"runCrawl": true,
+	"runCrawl": false,
 	"runExtract": false,
 	"runIndex": true,
 	"runLinkAnalysis": true,
